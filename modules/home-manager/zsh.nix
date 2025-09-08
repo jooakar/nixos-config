@@ -16,5 +16,9 @@
         "git"
       ];
     };
+
+    sessionVariables = {
+      SSH_AUTH_SOCK = "/Users/joona/Library/Containers/com.bitwarden.desktop/Data/.bitwarden-ssh-agent.sock";
+    };
   };
 }
