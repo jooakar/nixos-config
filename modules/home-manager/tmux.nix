@@ -16,7 +16,7 @@
 
       unbind-key -T copy-mode-vi v
       unbind-key C
-      bind-key C copy-mode -t vi
+      bind-key C copy-mode
 
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
