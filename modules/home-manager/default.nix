@@ -12,7 +12,7 @@
       imports = [
         ./nvim.nix
         ./tmux.nix
-        ./zsh.nix
+        ./fish.nix
         ./git.nix
       ];
       # generic packages
@@ -22,14 +22,14 @@
           flags = [
             "--disable-up-arrow"
           ];
-          enableZshIntegration = true;
+          enableFishIntegration = true;
         };
         zoxide = {
           enable = true;
           options = [
             "--cmd cd"
           ];
-          enableZshIntegration = true;
+          enableFishIntegration = true;
         };
       };
     };

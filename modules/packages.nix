@@ -6,6 +6,7 @@
     sqlite
     postgresql
     coreutils
+    tldr
 
     clang
     gcc

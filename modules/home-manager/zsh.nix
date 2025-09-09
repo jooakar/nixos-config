@@ -1,5 +1,6 @@
 {
   programs.zsh = {
+    # deprecated, see fish.nix
     enable = true;
     enableCompletion = true;
     autosuggestion.enable = true;

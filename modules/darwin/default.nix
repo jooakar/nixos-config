@@ -6,7 +6,6 @@
   nix.settings.experimental-features = [
     "flakes"
     "nix-command"
-    "pipe-operators"
   ];
 
   homebrew = {
@@ -39,5 +38,4 @@
       "bitwarden" = 1352778147;
     };
   };
-
 }
