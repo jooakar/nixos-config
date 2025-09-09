@@ -39,6 +39,7 @@
       "brave-browser"
       "zoom"
       "visual-studio-code"
+      "discord"
     ];
     onActivation = {
       autoUpdate = true;
