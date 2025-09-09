@@ -30,5 +30,7 @@
     tmux
     unzip
     zip
+
+    fishPlugins.grc
   ];
 }
