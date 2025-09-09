@@ -3,33 +3,30 @@
   imports = [
     nix-homebrew.darwinModules.nix-homebrew
   ];
-
+  
+  # System and Nix
   nixpkgs.hostPlatform = "aarch64-darwin";
+  nix.settings.experimental-features = ["flakes" "nix-command"];
   system.stateVersion = 6;
   system.primaryUser = "joona";
-  programs.fish.enable = true;
+  networking.hostName = "maxos";
+
+  # MacOS settings
+  security.pam.services.sudo_local.touchIdAuth = true;
+
+  # User(s)
   users.knownUsers = [ "joona" ];
   users.users.joona = {
     home = "/Users/joona";
     uid = 501;
     shell = pkgs.fish;
   };
-  nix.settings.experimental-features = [
-    "flakes"
-    "nix-command"
-  ];
+  programs.fish.enable = true;
 
-  networking.hostName = "maxos";
-  security.pam.services.sudo_local.touchIdAuth = true;
-
+  # Homebrew
   nix-homebrew = {
-    # Install Homebrew under the default prefix
     enable = true;
-
-    # Apple Silicon Only: Also install Homebrew under the default Intel prefix for Rosetta 2
     enableRosetta = true;
-
-    # User owning the Homebrew prefix
     user = "joona";
   };
 

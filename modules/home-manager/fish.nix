@@ -12,7 +12,6 @@
     plugins = [
       { name = "grc"; src = pkgs.fishPlugins.grc.src; }
       { name = "plugin-git"; src = pkgs.fishPlugins.plugin-git.src; }
-      { name = "git-abbr"; src = pkgs.fishPlugins.git-abbr.src; }
     ];
 
     shellInitLast = ''
