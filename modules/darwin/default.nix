@@ -1,8 +1,12 @@
+{ pkgs, ... }@inputs:
 {
   nixpkgs.hostPlatform = "aarch64-darwin";
   system.stateVersion = 6;
   system.primaryUser = "joona";
-  users.users.joona.home = "/Users/joona";
+  users.users.joona = {
+    home = "/Users/joona";
+    shell = pkgs.fish;
+  };
   nix.settings.experimental-features = [
     "flakes"
     "nix-command"

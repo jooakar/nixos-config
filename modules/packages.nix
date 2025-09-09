@@ -1,6 +1,8 @@
 { pkgs, ... }@input:
 {
  environment.systemPackages = with pkgs; [
+    fish
+
     btop
     rclone
     sqlite
