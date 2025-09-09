@@ -3,6 +3,7 @@
   nixpkgs.hostPlatform = "aarch64-darwin";
   system.stateVersion = 6;
   system.primaryUser = "joona";
+  programs.fish.enable = true;
   users.users.joona = {
     home = "/Users/joona";
     shell = pkgs.fish;
@@ -20,6 +21,7 @@
       "spotify"
       "brave-browser"
       "zoom"
+      "visual-studio-code"
     ];
     onActivation = {
       autoUpdate = true;
