@@ -10,6 +10,10 @@
     users.joona = {
       home.stateVersion = "25.11";
       imports = [
+        inputs.nix-index-database.homeModules.nix-index
+        {
+          programs.nix-index-database.comma.enable = true;
+        }
         ./nvim.nix
         ./tmux.nix
         ./fish.nix
