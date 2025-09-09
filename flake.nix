@@ -41,7 +41,7 @@
         };
         modules = [
           ./modules/fonts.nix
-	        ./modules/packages.nix
+          ./modules/packages.nix
           ./modules/home-manager
           ./modules/darwin
         ];

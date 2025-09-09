@@ -3,10 +3,13 @@
   imports = [
     nix-homebrew.darwinModules.nix-homebrew
   ];
-  
+
   # System and Nix
   nixpkgs.hostPlatform = "aarch64-darwin";
-  nix.settings.experimental-features = ["flakes" "nix-command"];
+  nix.settings.experimental-features = [
+    "flakes"
+    "nix-command"
+  ];
   system.stateVersion = 6;
   system.primaryUser = "joona";
   networking.hostName = "maxos";

@@ -10,8 +10,14 @@
     };
 
     plugins = [
-      { name = "grc"; src = pkgs.fishPlugins.grc.src; }
-      { name = "plugin-git"; src = pkgs.fishPlugins.plugin-git.src; }
+      {
+        name = "grc";
+        src = pkgs.fishPlugins.grc.src;
+      }
+      {
+        name = "plugin-git";
+        src = pkgs.fishPlugins.plugin-git.src;
+      }
     ];
 
     shellInitLast = ''

@@ -1,6 +1,6 @@
 { pkgs, ... }@input:
 {
- environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs; [
     fish
 
     btop
