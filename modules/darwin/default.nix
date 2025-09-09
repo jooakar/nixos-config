@@ -19,6 +19,9 @@
     "nix-command"
   ];
 
+  networking.hostName = "maxos";
+  security.pam.services.sudo_local.touchIdAuth = true;
+
   nix-homebrew = {
     # Install Homebrew under the default prefix
     enable = true;
