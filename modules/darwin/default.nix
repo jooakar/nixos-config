@@ -1,11 +1,17 @@
-{ pkgs, ... }@inputs:
+{ pkgs, nix-homebrew, ... }@inputs:
 {
+  imports = [
+    nix-homebrew.darwinModules.nix-homebrew
+  ];
+
   nixpkgs.hostPlatform = "aarch64-darwin";
   system.stateVersion = 6;
   system.primaryUser = "joona";
   programs.fish.enable = true;
+  users.knownUsers = [ "joona" ];
   users.users.joona = {
     home = "/Users/joona";
+    uid = 501;
     shell = pkgs.fish;
   };
   nix.settings.experimental-features = [
@@ -13,19 +19,17 @@
     "nix-command"
   ];
 
-  nix-homebrew.darwinModules.nix-homebrew
-  {
-    nix-homebrew = {
-      # Install Homebrew under the default prefix
-      enable = true;
+  nix-homebrew = {
+    # Install Homebrew under the default prefix
+    enable = true;
 
-      # Apple Silicon Only: Also install Homebrew under the default Intel prefix for Rosetta 2
-      enableRosetta = true;
+    # Apple Silicon Only: Also install Homebrew under the default Intel prefix for Rosetta 2
+    enableRosetta = true;
 
-      # User owning the Homebrew prefix
-      user = "joona";
-    };
-  }
+    # User owning the Homebrew prefix
+    user = "joona";
+  };
+
   homebrew = {
     enable = true;
     casks = [

@@ -19,6 +19,7 @@
 
     ffmpeg
 
+    grc
     git
     bat
     jq
@@ -30,7 +31,5 @@
     tmux
     unzip
     zip
-
-    fishPlugins.grc
   ];
 }

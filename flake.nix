@@ -32,6 +32,7 @@
       darwinConfigurations.maxos = nix-darwin.lib.darwinSystem {
         specialArgs = {
           inherit inputs;
+          inherit nix-homebrew;
         };
         modules = [
           ./modules/fonts.nix
