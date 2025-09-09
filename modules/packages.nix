@@ -19,6 +19,7 @@
 
     ffmpeg
 
+    comma
     grc
     git
     bat
