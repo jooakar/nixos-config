@@ -33,11 +33,16 @@
       nix-homebrew,
       ...
     }@inputs:
+
+    let
+      flakeRoot = ./.;
+    in
     {
       darwinConfigurations.maxos = nix-darwin.lib.darwinSystem {
         specialArgs = {
           inherit inputs;
           inherit nix-homebrew;
+	  inherit flakeRoot;
         };
         modules = [
           ./modules/fonts.nix

@@ -1,4 +1,8 @@
-{ inputs, lib, ... }:
+{ inputs, lib, flakeRoot, ... }:
+
+let
+  configPath = flakeRoot + /config;
+in
 {
   imports = [
     inputs.home-manager.darwinModules.home-manager
@@ -8,6 +12,11 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     users.joona = {
+      xdg.enable = true;
+      xdg.configFile = {
+        "ghostty".source = configPath + /ghostty;
+      };
+
       home.stateVersion = "25.11";
       imports = [
         inputs.nix-index-database.homeModules.nix-index
