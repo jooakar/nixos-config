@@ -16,6 +16,7 @@
     go
     nodejs
     python3
+    docker
 
     ffmpeg
 
