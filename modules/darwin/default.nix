@@ -42,6 +42,7 @@
       "brave-browser"
       "zoom"
       "visual-studio-code"
+      "zed"
       "discord"
     ];
     onActivation = {
