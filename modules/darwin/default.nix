@@ -44,6 +44,7 @@
       "visual-studio-code"
       "zed"
       "discord"
+      "claude-code"
     ];
     onActivation = {
       autoUpdate = true;
