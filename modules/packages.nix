@@ -14,7 +14,7 @@
     gcc
     rustup
     go
-    nodejs
+    nodejs_24
     python3
     docker
 
@@ -34,5 +34,6 @@
     zip
 
     nil
+    nixd
   ];
 }
