@@ -32,5 +32,7 @@
     tmux
     unzip
     zip
+
+    nil
   ];
 }
