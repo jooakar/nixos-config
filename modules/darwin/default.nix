@@ -45,6 +45,7 @@
       "zed"
       "discord"
       "claude-code"
+      "slack"
     ];
     onActivation = {
       autoUpdate = true;
