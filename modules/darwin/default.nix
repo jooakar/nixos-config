@@ -10,6 +10,7 @@
     "flakes"
     "nix-command"
   ];
+  nix.settings.trusted-users = [ "joona" ];
   system.stateVersion = 6;
   system.primaryUser = "joona";
   networking.hostName = "maxos";
