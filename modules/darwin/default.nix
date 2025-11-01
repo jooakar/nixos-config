@@ -6,6 +6,7 @@
 
   # System and Nix
   nixpkgs.hostPlatform = "aarch64-darwin";
+  nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [
     "flakes"
     "nix-command"
@@ -47,6 +48,9 @@
       "discord"
       "claude-code"
       "slack"
+      "skim"
+      "transmission"
+      "vlc"
     ];
     onActivation = {
       autoUpdate = true;
