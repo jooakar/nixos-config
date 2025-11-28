@@ -1,4 +1,8 @@
-{ inputs, lib, flakeRoot, ... }:
+{
+  inputs,
+  flakeRoot,
+  ...
+}:
 
 let
   configPath = flakeRoot + /config;
@@ -17,7 +21,7 @@ in
         "ghostty".source = configPath + /ghostty;
       };
 
-      home.stateVersion = "25.11";
+      home.stateVersion = "25.05";
       imports = [
         inputs.nix-index-database.homeModules.nix-index
         {
