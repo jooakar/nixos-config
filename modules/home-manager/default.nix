@@ -21,7 +21,7 @@ in
         "ghostty".source = configPath + /ghostty;
       };
 
-      home.stateVersion = "25.05";
+      home.stateVersion = "24.11";
       imports = [
         inputs.nix-index-database.homeModules.nix-index
         {

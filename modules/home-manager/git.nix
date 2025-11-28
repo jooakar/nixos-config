@@ -5,14 +5,11 @@
       "*.swp"
       ".DS_STORE"
     ];
-    delta = {
-      enable = true;
-      options.navigate = true;
-    };
-    userName = "Joona Kärkkäinen";
-    userEmail = "joona.karkkainen@gmail.com";
-    lfs.enable = true;
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Joona Kärkkäinen";
+        email = "joona.karkkainen@gmail.com";
+      };
       init.defaultBranch = "main";
       core.autocrlf = "input";
       branch.sort = "-committerdate";
@@ -20,5 +17,6 @@
       pull.ff = "only";
       rerere.enabled = true;
     };
+    lfs.enable = true;
   };
 }
