@@ -18,6 +18,14 @@
     python3
     docker
 
+    (rWrapper.override {
+      packages = with rPackages; [
+        languageserver
+        openxlsx
+        modeest
+      ];
+    })
+
     ffmpeg
 
     grc
@@ -36,6 +44,7 @@
     nil
     nixd
     terraform
+    gh
     railway
   ];
 }

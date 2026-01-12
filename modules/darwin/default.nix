@@ -51,6 +51,8 @@
       "skim"
       "transmission"
       "vlc"
+      "gimp"
+      "nikitabobko/tap/aerospace"
     ];
     onActivation = {
       autoUpdate = true;
@@ -69,7 +71,6 @@
       "mas"
     ];
     masApps = {
-      "telegram" = 747648890;
       "bitwarden" = 1352778147;
     };
   };

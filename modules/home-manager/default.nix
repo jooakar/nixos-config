@@ -19,6 +19,7 @@ in
       xdg.enable = true;
       xdg.configFile = {
         "ghostty".source = configPath + /ghostty;
+        "aerospace".source = configPath + /aerospace;
       };
 
       home.stateVersion = "24.11";
