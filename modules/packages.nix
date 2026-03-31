@@ -20,14 +20,6 @@
     docker
     typst
 
-    (rWrapper.override {
-      packages = with rPackages; [
-        languageserver
-        openxlsx
-        modeest
-      ];
-    })
-
     ffmpeg
 
     grc
@@ -48,7 +40,5 @@
     terraform
     gh
     railway
-
-    jdk21
   ];
 }

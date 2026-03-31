@@ -50,7 +50,6 @@
       "slack"
       "skim"
       "transmission"
-      "microsoft-teams"
       "minecraft"
       "vlc"
       "nikitabobko/tap/aerospace"

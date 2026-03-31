@@ -26,7 +26,7 @@ in
         ".claude/CLAUDE.md".source = configPath + /AGENTS.md;
         ".gemini/GEMINI.md".source = configPath + /AGENTS.md;
         ".codex/AGENTS.md".source = configPath + /AGENTS.md;
-      }
+      };
 
       home.stateVersion = "24.11";
       imports = [
