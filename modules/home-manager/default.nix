@@ -22,6 +22,12 @@ in
         "aerospace".source = configPath + /aerospace;
       };
 
+      home.file = {
+        ".claude/CLAUDE.md".source = configPath + /AGENTS.md;
+        ".gemini/GEMINI.md".source = configPath + /AGENTS.md;
+        ".codex/AGENTS.md".source = configPath + /AGENTS.md;
+      }
+
       home.stateVersion = "24.11";
       imports = [
         inputs.nix-index-database.homeModules.nix-index
@@ -48,6 +54,10 @@ in
             "--cmd cd"
           ];
           enableFishIntegration = true;
+        };
+        direnv = {
+          enable = true;
+          nix-direnv.enable = true;
         };
       };
     };

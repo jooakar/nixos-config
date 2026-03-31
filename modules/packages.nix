@@ -2,6 +2,7 @@
 {
   environment.systemPackages = with pkgs; [
     fish
+    direnv
 
     btop
     rclone
@@ -17,6 +18,7 @@
     nodejs_24
     python3
     docker
+    typst
 
     (rWrapper.override {
       packages = with rPackages; [
@@ -46,5 +48,7 @@
     terraform
     gh
     railway
+
+    jdk21
   ];
 }

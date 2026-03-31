@@ -50,8 +50,9 @@
       "slack"
       "skim"
       "transmission"
+      "microsoft-teams"
+      "minecraft"
       "vlc"
-      "gimp"
       "nikitabobko/tap/aerospace"
     ];
     onActivation = {
