@@ -49,29 +49,16 @@
       "claude-code"
       "slack"
       "skim"
-      "transmission"
-      "minecraft"
       "vlc"
       "nikitabobko/tap/aerospace"
+      "beekeeper-studio"
+      "bitwarden"
     ];
     onActivation = {
       autoUpdate = true;
       upgrade = true;
     };
     taps = [ ];
-    # These app IDs are from using the mas CLI app
-    # mas = mac app store
-    # https://github.com/mas-cli/mas
-    #
-    # $ nix shell nixpkgs#mas
-    # $ mas search <app name>
-    #
-    # completions from nixpkgs not work for some reason
-    brews = [
-      "mas"
-    ];
-    masApps = {
-      "bitwarden" = 1352778147;
-    };
+    brews = [ ];
   };
 }

@@ -5,6 +5,7 @@
       "*.swp"
       ".DS_STORE"
     ];
+    signing.format = null;
     settings = {
       user = {
         name = "Joona Kärkkäinen";

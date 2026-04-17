@@ -24,6 +24,7 @@
 
     grc
     git
+    jujutsu
     bat
     jq
     fd
