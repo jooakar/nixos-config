@@ -1,0 +1,7 @@
+{
+  casks = [
+    "discord"
+  ];
+  brews = [ ];
+  taps = [ ];
+}

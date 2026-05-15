@@ -37,20 +37,32 @@
 
     let
       flakeRoot = ./.;
+      mkDarwin =
+        { profile, hostname }:
+        nix-darwin.lib.darwinSystem {
+          specialArgs = {
+            inherit inputs;
+            inherit nix-homebrew;
+            inherit flakeRoot;
+            inherit profile;
+            inherit hostname;
+          };
+          modules = [
+            ./modules/fonts.nix
+            ./modules/packages.nix
+            ./modules/home-manager
+            ./modules/darwin
+          ];
+        };
     in
     {
-      darwinConfigurations.maxos = nix-darwin.lib.darwinSystem {
-        specialArgs = {
-          inherit inputs;
-          inherit nix-homebrew;
-          inherit flakeRoot;
-        };
-        modules = [
-          ./modules/fonts.nix
-          ./modules/packages.nix
-          ./modules/home-manager
-          ./modules/darwin
-        ];
+      darwinConfigurations.maxos = mkDarwin {
+        profile = "personal";
+        hostname = "maxos";
+      };
+      darwinConfigurations.maxos-work = mkDarwin {
+        profile = "work";
+        hostname = "maxos-work";
       };
     };
 }

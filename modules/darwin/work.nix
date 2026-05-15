@@ -1,0 +1,5 @@
+{
+  casks = [ ];
+  brews = [ ];
+  taps = [ ];
+}

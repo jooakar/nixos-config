@@ -1,6 +1,7 @@
 {
   inputs,
   flakeRoot,
+  profile,
   ...
 }:
 
@@ -15,6 +16,7 @@ in
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
+    extraSpecialArgs = { inherit profile; };
     users.joona = {
       xdg.enable = true;
       xdg.configFile = {

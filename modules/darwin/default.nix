@@ -1,4 +1,29 @@
-{ pkgs, nix-homebrew, ... }@inputs:
+{
+  pkgs,
+  nix-homebrew,
+  profile,
+  hostname,
+  ...
+}@inputs:
+let
+  profileOverlay = import (./. + "/${profile}.nix");
+  sharedCasks = [
+    "orbstack"
+    "ghostty"
+    "spotify"
+    "brave-browser"
+    "zoom"
+    "visual-studio-code"
+    "zed"
+    "claude-code"
+    "slack"
+    "skim"
+    "vlc"
+    "nikitabobko/tap/aerospace"
+    "beekeeper-studio"
+    "bitwarden"
+  ];
+in
 {
   imports = [
     nix-homebrew.darwinModules.nix-homebrew
@@ -14,7 +39,7 @@
   nix.settings.trusted-users = [ "joona" ];
   system.stateVersion = 6;
   system.primaryUser = "joona";
-  networking.hostName = "maxos";
+  networking.hostName = hostname;
 
   # MacOS settings
   security.pam.services.sudo_local.touchIdAuth = true;
@@ -37,28 +62,12 @@
 
   homebrew = {
     enable = true;
-    casks = [
-      "orbstack"
-      "ghostty"
-      "spotify"
-      "brave-browser"
-      "zoom"
-      "visual-studio-code"
-      "zed"
-      "discord"
-      "claude-code"
-      "slack"
-      "skim"
-      "vlc"
-      "nikitabobko/tap/aerospace"
-      "beekeeper-studio"
-      "bitwarden"
-    ];
+    casks = sharedCasks ++ profileOverlay.casks;
     onActivation = {
       autoUpdate = true;
       upgrade = true;
     };
-    taps = [ ];
-    brews = [ ];
+    taps = profileOverlay.taps;
+    brews = profileOverlay.brews;
   };
 }

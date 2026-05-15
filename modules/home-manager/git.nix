@@ -1,3 +1,17 @@
+{ profile, ... }:
+let
+  identity =
+    if profile == "work" then
+      {
+        name = "Joona Kärkkäinen";
+        email = "joona.karkkainen@netlight.com";
+      }
+    else
+      {
+        name = "Joona Kärkkäinen";
+        email = "joona.karkkainen@gmail.com";
+      };
+in
 {
   programs.git = {
     enable = true;
@@ -8,8 +22,7 @@
     signing.format = null;
     settings = {
       user = {
-        name = "Joona Kärkkäinen";
-        email = "joona.karkkainen@gmail.com";
+        inherit (identity) name email;
       };
       init.defaultBranch = "main";
       core.autocrlf = "input";

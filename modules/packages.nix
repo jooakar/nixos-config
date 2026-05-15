@@ -1,45 +1,46 @@
-{ pkgs, ... }@input:
+{ pkgs, profile, ... }:
 {
-  environment.systemPackages = with pkgs; [
-    fish
-    direnv
+  environment.systemPackages =
+    (with pkgs; [
+      fish
+      direnv
 
-    btop
-    rclone
-    sqlite
-    postgresql
-    coreutils
-    tldr
+      btop
+      rclone
+      sqlite
+      postgresql
+      coreutils
+      tldr
 
-    clang
-    gcc
-    rustup
-    go
-    nodejs_24
-    python3
-    docker
-    typst
+      clang
+      gcc
+      rustup
+      go
+      nodejs_24
+      python3
+      docker
+      typst
 
-    ffmpeg
+      ffmpeg
 
-    grc
-    git
-    jujutsu
-    bat
-    jq
-    fd
-    fzf
-    ripgrep
-    zoxide
-    atuin
-    tmux
-    unzip
-    zip
+      grc
+      git
+      jujutsu
+      bat
+      jq
+      fd
+      fzf
+      ripgrep
+      zoxide
+      atuin
+      tmux
+      unzip
+      zip
 
-    nil
-    nixd
-    terraform
-    gh
-    railway
-  ];
+      nil
+      nixd
+      terraform
+      gh
+    ])
+    ++ (import (./. + "/packages-${profile}.nix") { inherit pkgs; });
 }
