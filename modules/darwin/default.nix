@@ -12,13 +12,10 @@ let
     "ghostty"
     "spotify"
     "brave-browser"
-    "zoom"
     "visual-studio-code"
     "zed"
-    "claude-code"
+    "claude"
     "slack"
-    "skim"
-    "vlc"
     "nikitabobko/tap/aerospace"
     "beekeeper-studio"
     "bitwarden"
@@ -43,6 +40,56 @@ in
 
   # MacOS settings
   security.pam.services.sudo_local.touchIdAuth = true;
+
+  system.keyboard = {
+    enableKeyMapping = true;
+    remapCapsLockToEscape = true;
+  };
+
+  # some of these are documented at https://macos-defaults.com/
+  # https://daiderd.com/nix-darwin/manual/index.html#opt-system.defaults.CustomSystemPreferences
+  system.defaults = {
+    NSGlobalDomain = {
+      AppleShowAllExtensions = true;
+      ApplePressAndHoldEnabled = false;
+
+      KeyRepeat = 2;
+      InitialKeyRepeat = 25;
+    };
+
+    menuExtraClock = {
+      Show24Hour = true;
+      ShowDayOfWeek = true;
+      ShowDate = 0;
+      ShowSeconds = true;
+    };
+
+    dock = {
+      autohide = true;
+      show-recents = true;
+      launchanim = true;
+      orientation = "bottom";
+      tilesize = 24;
+    };
+
+    finder = {
+      _FXShowPosixPathInTitle = false;
+    };
+  };
+
+  local.dock.enable = true;
+  local.dock.entries = [
+    { path = "/Applications/Ghostty.app/"; }
+    { path = "/Applications/Brave Browser.app/"; }
+    { path = "/Applications/Slack.app/"; }
+    { path = "/System/Applications/System Settings.app"; }
+    { path = "/Applications/Bitwarden.app"; }
+    {
+      path = "/Users/joona/Downloads/";
+      section = "others";
+    }
+  ];
+  local.dock.username = "joona";
 
   # User(s)
   users.knownUsers = [ "joona" ];
