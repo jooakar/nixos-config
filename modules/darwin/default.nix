@@ -70,7 +70,7 @@ in
       show-recents = true;
       launchanim = true;
       orientation = "bottom";
-      tilesize = 24;
+      tilesize = 40;
     };
 
     finder = {
