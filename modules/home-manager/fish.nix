@@ -29,7 +29,7 @@
 
       # Vi mode
       set -g fish_key_bindings fish_vi_key_bindings
-      bind -M command ctrl-e edit_command_buffer
+      bind -M insert ctrl-e edit_command_buffer
     '';
   };
 }
