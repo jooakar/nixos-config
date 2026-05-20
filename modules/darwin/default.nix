@@ -3,6 +3,7 @@
   nix-homebrew,
   profile,
   hostname,
+  username,
   ...
 }@inputs:
 let
@@ -33,9 +34,9 @@ in
     "flakes"
     "nix-command"
   ];
-  nix.settings.trusted-users = [ "joona" ];
+  nix.settings.trusted-users = [ username ];
   system.stateVersion = 6;
-  system.primaryUser = "joona";
+  system.primaryUser = username;
   networking.hostName = hostname;
 
   # MacOS settings
@@ -77,24 +78,10 @@ in
     };
   };
 
-  local.dock.enable = true;
-  local.dock.entries = [
-    { path = "/Applications/Ghostty.app/"; }
-    { path = "/Applications/Brave Browser.app/"; }
-    { path = "/Applications/Slack.app/"; }
-    { path = "/System/Applications/System Settings.app"; }
-    { path = "/Applications/Bitwarden.app"; }
-    {
-      path = "/Users/joona/Downloads/";
-      section = "others";
-    }
-  ];
-  local.dock.username = "joona";
-
   # User(s)
-  users.knownUsers = [ "joona" ];
-  users.users.joona = {
-    home = "/Users/joona";
+  users.knownUsers = [ username ];
+  users.users.${username} = {
+    home = "/Users/${username}";
     uid = 501;
     shell = pkgs.fish;
   };
@@ -104,7 +91,7 @@ in
   nix-homebrew = {
     enable = true;
     enableRosetta = true;
-    user = "joona";
+    user = username;
   };
 
   homebrew = {

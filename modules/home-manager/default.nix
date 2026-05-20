@@ -2,6 +2,8 @@
   inputs,
   flakeRoot,
   profile,
+  username,
+  email,
   ...
 }:
 
@@ -16,8 +18,8 @@ in
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    extraSpecialArgs = { inherit profile; };
-    users.joona = {
+    extraSpecialArgs = { inherit profile username email; };
+    users.${username} = {
       xdg.enable = true;
       xdg.configFile = {
         "ghostty".source = configPath + /ghostty;

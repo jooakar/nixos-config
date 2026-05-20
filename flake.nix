@@ -38,7 +38,12 @@
     let
       flakeRoot = ./.;
       mkDarwin =
-        { profile, hostname }:
+        {
+          profile,
+          hostname,
+          username,
+          email,
+        }:
         nix-darwin.lib.darwinSystem {
           specialArgs = {
             inherit inputs;
@@ -46,6 +51,8 @@
             inherit flakeRoot;
             inherit profile;
             inherit hostname;
+            inherit username;
+            inherit email;
           };
           modules = [
             ./modules/fonts.nix
@@ -59,10 +66,14 @@
       darwinConfigurations.maxos = mkDarwin {
         profile = "personal";
         hostname = "maxos";
+        username = "joona";
+        email = "joona.karkkainen@gmail.com";
       };
       darwinConfigurations.maxos-work = mkDarwin {
         profile = "work";
         hostname = "maxos-work";
+        username = "jook";
+        email = "joona.karkkainen@netlight.com";
       };
     };
 }
