@@ -73,7 +73,7 @@
         profile = "work";
         hostname = "maxos-work";
         username = "jook";
-        email = "joona.karkkainen@netlight.com";
+        email = "jook@netlight.com";
       };
     };
 }
