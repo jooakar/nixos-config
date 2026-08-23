@@ -41,6 +41,8 @@
       nixd
       terraform
       gh
+      bitwarden-cli
+      claude-code
     ])
     ++ (import (./. + "/packages-${profile}.nix") { inherit pkgs; });
 }

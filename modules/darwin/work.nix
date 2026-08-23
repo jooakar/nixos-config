@@ -1,5 +1,5 @@
 {
-  casks = [ ];
+  casks = [ "slack" ];
   brews = [ ];
   taps = [ ];
 }

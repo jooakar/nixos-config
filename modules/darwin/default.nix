@@ -15,8 +15,6 @@ let
     "brave-browser"
     "visual-studio-code"
     "zed"
-    "claude"
-    "slack"
     "nikitabobko/tap/aerospace"
     "beekeeper-studio"
     "bitwarden"
