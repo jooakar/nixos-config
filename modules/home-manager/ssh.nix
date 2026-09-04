@@ -9,7 +9,7 @@
         HashKnownHosts = false;
         SetEnv.TERM = "xterm-256color";
       };
-      "github" = {
+      "github.com" = {
         HostName = "github.com";
         IdentityFile = "~/.ssh/bitwarden_github.pub";
         IdentitiesOnly = true;
