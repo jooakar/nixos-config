@@ -18,6 +18,7 @@ in
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
+    backupFileExtension = "hm-backup";
     extraSpecialArgs = { inherit profile username email; };
     users.${username} = {
       xdg.enable = true;
@@ -30,6 +31,7 @@ in
         ".claude/CLAUDE.md".source = configPath + /AGENTS.md;
         ".gemini/GEMINI.md".source = configPath + /AGENTS.md;
         ".codex/AGENTS.md".source = configPath + /AGENTS.md;
+        ".ssh/bitwarden_github.pub".source = configPath + /ssh/bitwarden_github.pub;
       };
 
       home.stateVersion = "24.11";
@@ -42,6 +44,7 @@ in
         ./tmux.nix
         ./fish.nix
         ./git.nix
+        ./ssh.nix
       ];
       # generic packages
       programs = {
