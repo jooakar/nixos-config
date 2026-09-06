@@ -12,7 +12,7 @@
       };
       "github.com" = {
         HostName = "github.com";
-        IdentityFile = "~/.ssh/bitwarden_github.pub";
+        IdentityFile = "~/.ssh/id_ed25519";
         IdentitiesOnly = true;
       };
     };

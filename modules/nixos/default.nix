@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   inputs,
   flakeRoot,
@@ -8,13 +9,17 @@
   ...
 }:
 let
-  authorizedKeys = [ (flakeRoot + /config/ssh/bitwarden_github.pub) ];
+  # Every public key in the directory may log in. Authorizing another machine
+  # is dropping its .pub in there; revoking one is deleting the file.
+  authorizedKeys = lib.filesystem.listFilesRecursive (flakeRoot + /config/ssh-keys);
 in
 {
   imports = [
     inputs.disko.nixosModules.disko
     ./hardware.nix
     ./disko.nix
+    ./k3s.nix
+    ./postgres.nix
   ];
 
   # System and Nix

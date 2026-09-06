@@ -42,7 +42,6 @@ in
         ".claude/CLAUDE.md".source = configPath + /AGENTS.md;
         ".gemini/GEMINI.md".source = configPath + /AGENTS.md;
         ".codex/AGENTS.md".source = configPath + /AGENTS.md;
-        ".ssh/bitwarden_github.pub".source = configPath + /ssh/bitwarden_github.pub;
       };
 
       home.stateVersion = "24.11";

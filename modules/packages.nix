@@ -18,14 +18,6 @@
       coreutils
       tldr
 
-      clang
-      gcc
-      rustup
-      go
-      nodejs_24
-      python3
-      typst
-
       ffmpeg
 
       grc
@@ -41,13 +33,6 @@
       tmux
       unzip
       zip
-
-      nil
-      nixd
-      terraform
-      gh
-      bitwarden-cli
-      claude-code
     ])
     # The daemon comes from the OrbStack cask; only the CLI is needed here.
     ++ lib.optionals isDarwin [ pkgs.docker ]
