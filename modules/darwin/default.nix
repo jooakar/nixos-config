@@ -5,7 +5,7 @@
   hostname,
   username,
   ...
-}@inputs:
+}:
 let
   profileOverlay = import (./. + "/${profile}.nix");
   sharedCasks = [

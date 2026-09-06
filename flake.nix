@@ -2,12 +2,11 @@
   description = "My config :D";
 
   inputs = {
-    nixpkgs-unstable-darwin.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixpkgs-stable-darwin.url = "github:nixos/nixpkgs/nixpkgs-25.05-darwin";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs-unstable-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-homebrew = {
@@ -16,12 +15,17 @@
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
-      inputs.nixpkgs.follows = "nixpkgs-unstable-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs-unstable-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -53,12 +57,39 @@
             inherit hostname;
             inherit username;
             inherit email;
+            isDarwin = true;
           };
           modules = [
             ./modules/fonts.nix
             ./modules/packages.nix
             ./modules/home-manager
             ./modules/darwin
+          ];
+        };
+      mkNixos =
+        {
+          profile,
+          hostname,
+          username,
+          email,
+          diskDevice,
+        }:
+        nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = {
+            inherit inputs;
+            inherit flakeRoot;
+            inherit profile;
+            inherit hostname;
+            inherit username;
+            inherit email;
+            inherit diskDevice;
+            isDarwin = false;
+          };
+          modules = [
+            ./modules/packages.nix
+            ./modules/home-manager
+            ./modules/nixos
           ];
         };
     in
@@ -74,6 +105,13 @@
         hostname = "maxos-work";
         username = "jook";
         email = "jook@netlight.com";
+      };
+      nixosConfigurations.vps = mkNixos {
+        profile = "server";
+        hostname = "vps";
+        username = "joona";
+        email = "joona.karkkainen@gmail.com";
+        diskDevice = "/dev/vda";
       };
     };
 }

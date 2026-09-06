@@ -1,28 +1,39 @@
 {
+  lib,
   inputs,
   flakeRoot,
   profile,
   username,
   email,
+  isDarwin,
   ...
 }:
 
 let
   configPath = flakeRoot + /config;
+  hostModules =
+    if isDarwin then inputs.home-manager.darwinModules else inputs.home-manager.nixosModules;
 in
 {
   imports = [
-    inputs.home-manager.darwinModules.home-manager
+    hostModules.home-manager
   ];
 
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "hm-backup";
-    extraSpecialArgs = { inherit profile username email; };
+    extraSpecialArgs = {
+      inherit
+        profile
+        username
+        email
+        isDarwin
+        ;
+    };
     users.${username} = {
       xdg.enable = true;
-      xdg.configFile = {
+      xdg.configFile = lib.optionalAttrs isDarwin {
         "ghostty".source = configPath + /ghostty;
         "aerospace".source = configPath + /aerospace;
       };
