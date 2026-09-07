@@ -16,6 +16,9 @@ in
 
   # AWS_ACCESS_KEY_ID=... / AWS_SECRET_ACCESS_KEY=... for the R2 state bucket
   "r2-state.age" = workstation;
+
+  # CLOUDFLARE_API_TOKEN=... with Zone:Read and DNS:Edit on both zones
+  "cloudflare-api.age" = workstation;
 }
 // builtins.listToAttrs (
   map (app: {

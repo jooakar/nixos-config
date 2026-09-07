@@ -6,10 +6,8 @@ resource "upcloud_server" "vps" {
   metadata = true
   firewall = true
 
-  # UpCloud's hypervisor resets instead of completing a kexec jump, so
-  # nixos-anywhere cannot bootstrap this machine its usual way. The installer
-  # is booted from UpCloud's NixOS CD instead; see README.md.
-  boot_order = var.bootstrap ? "cdrom,disk" : "disk"
+  # kexec does not work on UpCloud, so the installer comes from a CD instead.
+  boot_order = "cdrom,disk"
 
   dynamic "storage_devices" {
     for_each = var.bootstrap ? [1] : []

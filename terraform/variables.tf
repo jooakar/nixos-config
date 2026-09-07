@@ -43,3 +43,9 @@ variable "installer_cdrom" {
   default     = "01000000-0000-4000-8000-000170010201"
   description = "NixOS 25.05 Minimal Installation CD. `upctl storage list --public` lists the alternatives."
 }
+
+variable "cloudflare_account_id" {
+  type        = string
+  default     = "d247563982d77af7026e8d7168647e81"
+  description = "Same account that holds the R2 state bucket. An identifier, not a credential."
+}

@@ -6,6 +6,10 @@ terraform {
       source  = "UpCloudLtd/upcloud"
       version = "~> 5.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.0"
+    }
   }
 
   backend "s3" {
@@ -29,4 +33,8 @@ terraform {
 
 provider "upcloud" {
   # UPCLOUD_TOKEN from secrets/upcloud-api.age
+}
+
+provider "cloudflare" {
+  # CLOUDFLARE_API_TOKEN from secrets/cloudflare-api.age
 }

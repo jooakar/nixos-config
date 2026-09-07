@@ -9,6 +9,7 @@ cd "$root/secrets"
 set -a
 eval "$(agenix -d upcloud-api.age)"
 eval "$(agenix -d r2-state.age)"
+eval "$(agenix -d cloudflare-api.age)"
 set +a
 
 cd "$root/terraform"
