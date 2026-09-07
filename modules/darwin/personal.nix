@@ -4,6 +4,7 @@
     "zoom"
     "skim"
     "vlc"
+    "tailscale"
   ];
   brews = [ ];
   taps = [ ];

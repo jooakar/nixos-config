@@ -10,6 +10,9 @@ let
   # The GitOps repo Argo CD tracks. Everything in the cluster comes from here.
   gitopsRepo = "https://github.com/jooakar/nixos-config.git";
 
+  # The API server is reachable only over tailnet
+  tailnet = "tailee6cd9.ts.net";
+
   rootApplication = {
     apiVersion = "argoproj.io/v1alpha1";
     kind = "Application";
@@ -48,9 +51,8 @@ in
     extraFlags = [
       "--write-kubeconfig-mode=0640"
       "--write-kubeconfig-group=k3s"
-      # Add the tailnet MagicDNS name here once the tailnet is known, otherwise
-      # kubectl from outside the box hits a certificate mismatch.
       "--tls-san=${hostname}"
+      "--tls-san=${hostname}.${tailnet}"
     ];
 
     autoDeployCharts.argo-cd = {
