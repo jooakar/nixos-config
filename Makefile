@@ -7,13 +7,13 @@ darwin:
 
 build: darwin
 
-# NixOS. Run on the server itself; aarch64 Macs cannot build x86_64-linux.
+# NixOS. Run on the server itself.
 nixos:
 	sudo nixos-rebuild switch --flake ".#vps"
 
-# First install, run from the Mac against a fresh UpCloud server. See README.md.
+# When first setting up the UpCloud VPS, this boots from a NixOS CD
+# Other steps in README
 bootstrap:
-	nix run $(NIXFLAGS) github:nix-community/nixos-anywhere -- \
-		--flake ".#vps" --build-on remote root@$(HOST)
+	./scripts/tf.sh apply -var bootstrap=true
 
 .PHONY: darwin build nixos bootstrap

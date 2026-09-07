@@ -1,1 +1,11 @@
 result
+
+# terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.auto.tfvars
+terraform.tfvars
+
+.direnv

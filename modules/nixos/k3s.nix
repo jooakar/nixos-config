@@ -8,10 +8,8 @@ let
   podCidr = "10.42.0.0/16";
 
   # The GitOps repo Argo CD tracks. Everything in the cluster comes from here.
-  gitopsRepo = "https://github.com/jooakar/infra.git";
+  gitopsRepo = "https://github.com/jooakar/nixos-config.git";
 
-  # App-of-apps root. Rendered by the Helm release itself (values.extraObjects)
-  # so it lands after the Argo CD CRDs exist.
   rootApplication = {
     apiVersion = "argoproj.io/v1alpha1";
     kind = "Application";
@@ -24,7 +22,7 @@ let
       source = {
         repoURL = gitopsRepo;
         targetRevision = "main";
-        path = "clusters/${hostname}";
+        path = "cluster/${hostname}";
       };
       destination = {
         server = "https://kubernetes.default.svc";
@@ -46,7 +44,6 @@ in
   services.k3s = {
     enable = true;
     role = "server";
-    # Ingress is cluster content, so it comes from git rather than from k3s.
     disable = [ "traefik" ];
     extraFlags = [
       "--write-kubeconfig-mode=0640"
@@ -68,9 +65,10 @@ in
         configs.params."server.insecure" = true;
         dex.enabled = false;
         notifications.enabled = false;
-        extraObjects = [ rootApplication ];
       };
     };
+
+    manifests.argocd-root.content = rootApplication;
   };
 
   users.groups.k3s = { };

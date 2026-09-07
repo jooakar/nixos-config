@@ -27,6 +27,11 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -41,6 +46,13 @@
 
     let
       flakeRoot = ./.;
+
+      # Tooling for the terraform and cluster halves of this repo.
+      devSystems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+      ];
+      forAllSystems = nixpkgs.lib.genAttrs devSystems;
       mkDarwin =
         {
           profile,
@@ -113,5 +125,32 @@
         email = "joona.karkkainen@gmail.com";
         diskDevice = "/dev/vda";
       };
+
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true; # terraform is BSL
+          };
+        in
+        {
+          default = pkgs.mkShell {
+            packages = [
+              inputs.agenix.packages.${system}.default
+              pkgs.terraform
+              pkgs.age
+              pkgs.kubectl
+              pkgs.kubernetes-helm
+              pkgs.argocd
+              pkgs.k9s
+              pkgs.upcloud-cli
+            ];
+            shellHook = ''
+              export RULES="$PWD/secrets/secrets.nix"
+            '';
+          };
+        }
+      );
     };
 }

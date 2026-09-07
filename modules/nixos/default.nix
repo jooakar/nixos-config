@@ -9,13 +9,13 @@
   ...
 }:
 let
-  # Every public key in the directory may log in. Authorizing another machine
-  # is dropping its .pub in there; revoking one is deleting the file.
+  # Every public key in the directory may log in
   authorizedKeys = lib.filesystem.listFilesRecursive (flakeRoot + /config/ssh-keys);
 in
 {
   imports = [
     inputs.disko.nixosModules.disko
+    inputs.agenix.nixosModules.default
     ./hardware.nix
     ./disko.nix
     ./k3s.nix
@@ -95,7 +95,6 @@ in
 
   services.qemuGuest.enable = true;
 
-  networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22 ];
