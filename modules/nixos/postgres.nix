@@ -4,6 +4,7 @@
   pkgs,
   flakeRoot,
   k3sPodCidr,
+  k3sHostAddr,
   ...
 }:
 let
@@ -19,6 +20,47 @@ in
     group = "postgres";
     mode = "0400";
   });
+
+  # Gives pods a stable name for the host database
+  services.k3s.manifests.postgres-host.content = [
+    {
+      apiVersion = "v1";
+      kind = "Service";
+      metadata = {
+        name = "postgres";
+        namespace = "default";
+      };
+      spec.ports = [
+        {
+          name = "postgres";
+          port = 5432;
+          targetPort = 5432;
+        }
+      ];
+    }
+    {
+      apiVersion = "discovery.k8s.io/v1";
+      kind = "EndpointSlice";
+      metadata = {
+        name = "postgres";
+        namespace = "default";
+        labels."kubernetes.io/service-name" = "postgres";
+      };
+      addressType = "IPv4";
+      ports = [
+        {
+          name = "postgres";
+          port = 5432;
+        }
+      ];
+      endpoints = [
+        {
+          addresses = [ k3sHostAddr ];
+          conditions.ready = true;
+        }
+      ];
+    }
+  ];
 
   # Runs on the host rather than k3s so that the cluster can be dropped at will
   services.postgresql = {

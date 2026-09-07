@@ -4,8 +4,11 @@
   ...
 }:
 let
-  # k3s defaults. postgres.nix opens itself to the pod range.
+  # k3s defaults. postgres.nix opens itself to the pod range, and publishes
+  # itself into the cluster at the cni0 gateway, which is the node as a pod
+  # sees it.
   podCidr = "10.42.0.0/16";
+  hostAddr = "10.42.0.1";
 
   # The GitOps repo Argo CD tracks. Everything in the cluster comes from here.
   gitopsRepo = "https://github.com/jooakar/nixos-config.git";
@@ -43,6 +46,7 @@ let
 in
 {
   _module.args.k3sPodCidr = podCidr;
+  _module.args.k3sHostAddr = hostAddr;
 
   services.k3s = {
     enable = true;
