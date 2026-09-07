@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd
+  namespace: argocd
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    # Tailnet only. cert-manager's HTTP-01 solver gets its own Ingress without
+    # this annotation, so ACME challenges still reach it from the internet.
+    nginx.ingress.kubernetes.io/whitelist-source-range: 100.64.0.0/10
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: argocd.joona.codes
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argo-cd-argocd-server
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - argocd.joona.codes
+      secretName: argocd-tls
