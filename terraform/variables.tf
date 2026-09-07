@@ -49,3 +49,9 @@ variable "cloudflare_account_id" {
   default     = "d247563982d77af7026e8d7168647e81"
   description = "Same account that holds the R2 state bucket. An identifier, not a credential."
 }
+
+variable "tailscale_ip" {
+  type        = string
+  default     = "100.115.123.13"
+  description = "The server's tailnet address, stable while the node stays in the tailnet."
+}

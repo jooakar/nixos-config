@@ -19,8 +19,10 @@ resource "cloudflare_zone" "hundred_app" {
   }
 }
 
-# Proxying would replace the client address with Cloudflare's, defeating tailnet
-# source restrictions at the ingress.
+# =============================================
+# joona.codes
+# =============================================
+
 resource "cloudflare_dns_record" "server" {
   for_each = toset([
     "joona.codes",
@@ -34,6 +36,24 @@ resource "cloudflare_dns_record" "server" {
   ttl     = 300
   proxied = false
 }
+
+# Tailnet-only services
+resource "cloudflare_dns_record" "internal" {
+  for_each = toset([
+    "argocd",
+  ])
+
+  zone_id = cloudflare_zone.joona_codes.id
+  name    = "${each.value}.joona.codes"
+  type    = "A"
+  content = var.tailscale_ip
+  ttl     = 300
+  proxied = false
+}
+
+# =============================================
+# hundred.app
+# =============================================
 
 resource "cloudflare_dns_record" "cname_16873660" {
   content = "sendgrid.net"

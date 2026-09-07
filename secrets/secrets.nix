@@ -19,6 +19,9 @@ in
 
   # CLOUDFLARE_API_TOKEN=... with Zone:Read and DNS:Edit on both zones
   "cloudflare-api.age" = workstation;
+
+  # The same token, bare, published into the cluster for cert-manager DNS-01
+  "cloudflare-dns.age" = host;
 }
 // builtins.listToAttrs (
   map (app: {

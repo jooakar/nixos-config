@@ -19,6 +19,7 @@ in
     ./hardware.nix
     ./disko.nix
     ./k3s.nix
+    ./cluster-secrets.nix
     ./postgres.nix
   ];
 
