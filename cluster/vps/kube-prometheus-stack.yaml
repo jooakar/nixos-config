@@ -67,6 +67,18 @@ spec:
             existingSecret: env
             userKey: GRAFANA_ADMIN_USER
             passwordKey: GRAFANA_ADMIN_PASSWORD
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: grafana
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: grafana
+            timeoutSeconds: 5
+            failureThreshold: 6
           persistence:
             enabled: true
             storageClassName: local-path
