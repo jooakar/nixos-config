@@ -1,0 +1,17 @@
+# What an application's CI may do to it
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ci-deploy
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "patch"]
+  # `kubectl rollout status` reads the replica sets behind the deployment.
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+  # Enough to see why a rollout is stuck, without reading pod contents.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]

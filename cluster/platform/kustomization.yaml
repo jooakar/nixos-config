@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - cluster-issuer.yaml
   - argocd-ingress.yaml
+  - ci-deploy-role.yaml

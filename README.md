@@ -56,7 +56,8 @@ and restarting the deployment.
 
 Adding an app: give it a database in `modules/nixos/databases.nix`, manifests in
 `cluster/apps/<app>/`, an `Application` in `cluster/vps/`, and its credentials in
-`secrets/cluster/<app>/` (below).
+`secrets/cluster/<app>/` (below). Copy `cluster/apps/hundred/ci-deploy.yaml` across with the
+namespace changed; the verbs it binds are shared, so only those three objects repeat.
 
 ### The deploy credential
 

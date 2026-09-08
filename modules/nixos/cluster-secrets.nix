@@ -113,7 +113,7 @@ in
           generic)
             args=()
             while IFS=$'\t' read -r key path; do
-              args+=("--from-file=$key=$path")
+              args+=("--from-literal=$key=$(cat "$path")")
             done < <(jq -r '.keys | to_entries[] | "\(.key)\t\(.value)"' <<<"$secret")
             kubectl create secret generic "$name" --namespace "$ns" "''${args[@]}" \
               --dry-run=client -o yaml | apply

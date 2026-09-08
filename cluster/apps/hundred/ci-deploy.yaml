@@ -1,24 +1,9 @@
+# The identity GitHub Actions deploys as.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: ci-deploy
   namespace: hundred
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: ci-deploy
-  namespace: hundred
-rules:
-  - apiGroups: ["apps"]
-    resources: ["deployments"]
-    verbs: ["get", "list", "watch", "patch"]
-  - apiGroups: ["apps"]
-    resources: ["replicasets"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -27,13 +12,15 @@ metadata:
   namespace: hundred
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
+  kind: ClusterRole
   name: ci-deploy
 subjects:
   - kind: ServiceAccount
     name: ci-deploy
     namespace: hundred
 ---
+# A non-expiring token for the account above.
+# See the README for turning it into the kubeconfig the workflow uses.
 apiVersion: v1
 kind: Secret
 metadata:
