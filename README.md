@@ -47,6 +47,19 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath='{.data.password}' | base64 -d
 ```
 
+## Monitoring
+
+Three upstream charts, all in the `monitoring` namespace, all `Application`s in
+`cluster/vps/`:
+
+| Chart                   | What it is                                              |
+| ----------------------- | ------------------------------------------------------- |
+| `kube-prometheus-stack` | Prometheus, kube-state-metrics, node-exporter, Grafana   |
+| `loki`                  | Loki in `SingleBinary` mode, filesystem storage          |
+| `alloy`                 | A DaemonSet that tails pod logs and writes them to Loki  |
+
+Grafana is tailnet only, the same shape as the Argo CD ingress
+
 ## Applications
 
 One Argo CD `Application` per app under `cluster/vps/`, pointing at that app's manifests in

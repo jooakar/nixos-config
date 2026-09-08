@@ -17,6 +17,11 @@ let
   cluster = {
     cert-manager = [ "CLOUDFLARE_API_TOKEN" ];
 
+    monitoring = [
+      "GRAFANA_ADMIN_USER"
+      "GRAFANA_ADMIN_PASSWORD"
+    ];
+
     hundred = [
       "DB_PASSWORD" # also what postgres.nix creates the role with
       "BETTER_AUTH_SECRET"

@@ -41,6 +41,7 @@ resource "cloudflare_dns_record" "server" {
 resource "cloudflare_dns_record" "internal" {
   for_each = toset([
     "argocd",
+    "grafana",
   ])
 
   zone_id = cloudflare_zone.joona_codes.id
