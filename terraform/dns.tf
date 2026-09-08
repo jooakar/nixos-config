@@ -55,6 +55,15 @@ resource "cloudflare_dns_record" "internal" {
 # hundred.app
 # =============================================
 
+resource "cloudflare_dns_record" "beta" {
+  zone_id = cloudflare_zone.hundred_app.id
+  name    = "beta.hundred.app"
+  type    = "A"
+  content = upcloud_server.vps.network_interface[0].ip_address
+  ttl     = 300
+  proxied = false
+}
+
 resource "cloudflare_dns_record" "cname_16873660" {
   content = "sendgrid.net"
   name    = "16873660.hundred.app"
@@ -97,7 +106,7 @@ resource "cloudflare_dns_record" "txt_cf2024_1_domainkey" {
 }
 
 resource "cloudflare_dns_record" "cname_s1_domainkey" {
-  content = "s1.domainkey.u16873660.wl161.sendgrid.net"
+  content = "s1.domainkey.u10267722.wl223.sendgrid.net"
   name    = "s1._domainkey.hundred.app"
   proxied = false
   settings = {
@@ -124,6 +133,29 @@ resource "cloudflare_dns_record" "cname_em7430" {
   zone_id = cloudflare_zone.hundred_app.id
 }
 
+resource "cloudflare_dns_record" "cname_em4818" {
+  content = "u10267722.wl223.sendgrid.net"
+  name    = "em4818.hundred.app"
+  proxied = false
+  settings = {
+    flatten_cname = false
+    ipv4_only     = false
+    ipv6_only     = false
+  }
+  ttl     = 1
+  type    = "CNAME"
+  zone_id = cloudflare_zone.hundred_app.id
+}
+
+resource "cloudflare_dns_record" "txt_dmarc" {
+  content = "v=DMARC1; p=none;"
+  name    = "_dmarc.hundred.app"
+  proxied = false
+  ttl     = 1
+  type    = "TXT"
+  zone_id = cloudflare_zone.hundred_app.id
+}
+
 resource "cloudflare_dns_record" "a_www" {
   content = "13.69.228.7"
   name    = "www.hundred.app"
@@ -144,7 +176,7 @@ resource "cloudflare_dns_record" "mx_apex_1" {
 }
 
 resource "cloudflare_dns_record" "cname_s2_domainkey" {
-  content = "s2.domainkey.u16873660.wl161.sendgrid.net"
+  content = "s2.domainkey.u10267722.wl223.sendgrid.net"
   name    = "s2._domainkey.hundred.app"
   proxied = false
   settings = {

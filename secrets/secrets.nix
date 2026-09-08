@@ -8,24 +8,32 @@ let
     vps
   ];
 
-  databases = import ../modules/nixos/databases.nix;
+  env = [
+    "upcloud-api" # UPCLOUD_TOKEN=ucat_...
+    "r2-state" # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY for the state bucket
+    "cloudflare-api" # CLOUDFLARE_API_TOKEN, Zone:Read and DNS:Edit on both zones
+  ];
+
+  cluster = {
+    cert-manager = [ "CLOUDFLARE_API_TOKEN" ];
+
+    hundred = [
+      "DB_PASSWORD" # also what postgres.nix creates the role with
+      "BETTER_AUTH_SECRET"
+      "SENDGRID_API_KEY"
+      "MAIL_FROM"
+      "ghcr.docker-password"
+    ];
+  };
+
+  rule = prefix: recipients: name: {
+    name = "${prefix}/${name}.age";
+    value = recipients;
+  };
 in
-{
-  # UPCLOUD_TOKEN=ucat_...
-  "upcloud-api.age" = workstation;
-
-  # AWS_ACCESS_KEY_ID=... / AWS_SECRET_ACCESS_KEY=... for the R2 state bucket
-  "r2-state.age" = workstation;
-
-  # CLOUDFLARE_API_TOKEN=... with Zone:Read and DNS:Edit on both zones
-  "cloudflare-api.age" = workstation;
-
-  # The same token, bare, published into the cluster for cert-manager DNS-01
-  "cloudflare-dns.age" = host;
-}
-// builtins.listToAttrs (
-  map (app: {
-    name = "pg-${app}.age";
-    value = host;
-  }) databases
+builtins.listToAttrs (
+  map (rule "env" workstation) env
+  ++ builtins.concatLists (
+    builtins.attrValues (builtins.mapAttrs (namespace: map (rule "cluster/${namespace}" host)) cluster)
+  )
 )

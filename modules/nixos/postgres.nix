@@ -2,7 +2,7 @@
   config,
   lib,
   pkgs,
-  flakeRoot,
+  clusterSecretName,
   k3sPodCidr,
   k3sHostAddr,
   ...
@@ -10,12 +10,11 @@
 let
   databases = import ./databases.nix;
 
-  secretName = app: "pg-${app}";
+  secretName = app: clusterSecretName app "DB_PASSWORD";
   passwordFile = app: config.age.secrets.${secretName app}.path;
 in
 {
-  age.secrets = lib.genAttrs (map secretName databases) (name: {
-    file = flakeRoot + "/secrets/${name}.age";
+  age.secrets = lib.genAttrs (map secretName databases) (_: {
     owner = "postgres";
     group = "postgres";
     mode = "0400";
@@ -67,9 +66,6 @@ in
     enable = true;
     package = pkgs.postgresql_18;
 
-    # Listens on every interface rather than the cni0 gateway address, which
-    # does not exist until k3s has started. The firewall keeps 5432 off the
-    # public interface; only cni0 and tailscale0 are trusted.
     enableTCPIP = true;
     settings.password_encryption = "scram-sha-256";
 
@@ -79,9 +75,6 @@ in
       ensureDBOwnership = true;
     }) databases;
 
-    # One rule per app: a role may only authenticate against its own database,
-    # and only from the pod network. Anything not listed here falls through to
-    # the module defaults, which are socket-only peer auth for admin access.
     authentication = lib.concatMapStrings (app: ''
       host ${app} ${app} ${k3sPodCidr} scram-sha-256
     '') databases;
