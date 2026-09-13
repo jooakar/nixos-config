@@ -47,7 +47,7 @@
     let
       flakeRoot = ./.;
 
-      # Tooling for the terraform and cluster halves of this repo.
+      # Tooling for the terraform half of this repo.
       devSystems = [
         "aarch64-darwin"
         "x86_64-linux"
@@ -140,10 +140,6 @@
               inputs.agenix.packages.${system}.default
               pkgs.terraform
               pkgs.age
-              pkgs.kubectl
-              pkgs.kubernetes-helm
-              pkgs.argocd
-              pkgs.k9s
               pkgs.upcloud-cli
             ];
             shellHook = ''

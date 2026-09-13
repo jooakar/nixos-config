@@ -16,9 +16,9 @@ bits are gated on the `isDarwin` flag passed through `specialArgs`.
 ```
 config/       dotfiles copied into place by home-manager
 modules/      the machine configs: darwin, nixos, home-manager
-secrets/      agenix-encrypted credentials, one rules file
-terraform/    the UpCloud server, its firewall, and the installer CD
-cluster/      GitOps. Argo CD's root Application tracks cluster/<hostname>
+modules/nixos/apps/  one file per application running on the server
+secrets/      agenix-encrypted env files, one rules file
+terraform/    the UpCloud server, its firewall, and the DNS records
 scripts/tf.sh decrypts credentials, then execs terraform
 ```
 
@@ -35,103 +35,98 @@ nix run nixpkgs#nixos-rebuild -- switch --flake 'path:.#vps' \
 `system.autoUpgrade` is also enabled and pulls `github:jooakar/nixos-config` weekly, so
 anything pushed to `main` reaches the server on its own.
 
-## k3s and Argo CD
+## What runs on the server
 
-`modules/nixos/k3s.nix` runs a single-node k3s server. Traefik is disabled and ingress is
-cluster content which comes from `cluster/`.
+Everything is a NixOS service. There is no container orchestrator; `nixos-rebuild` is the
+only thing that changes the machine.
 
-The initial admin password can be fetched with:
+| Module                        | What it runs                                            |
+| ----------------------------- | ------------------------------------------------------- |
+| `modules/nixos/web.nix`       | nginx and ACME. Every cert is issued over DNS-01.        |
+| `modules/nixos/postgres.nix`  | PostgreSQL, one database per application                 |
+| `modules/nixos/monitoring.nix`| Prometheus, node and postgres exporters, Loki, Alloy, Grafana |
+| `modules/nixos/apps/*.nix`    | one podman container per application                     |
+| `modules/nixos/deploy.nix`    | the restricted SSH identity CI deploys with              |
 
-```sh
-kubectl -n argocd get secret argocd-initial-admin-secret \
-  -o jsonpath='{.data.password}' | base64 -d
-```
+Only nginx listens on a public port. Everything else binds `127.0.0.1` and is reached
+through a vhost, and vhosts built with `mkVhost { tailnetOnly = true; }` additionally
+refuse anything outside `100.64.0.0/10`.
 
 ## Monitoring
 
-Three upstream charts, all in the `monitoring` namespace, all `Application`s in
-`cluster/vps/`:
+Grafana is on `https://grafana.joona.codes`, tailnet only. Its admin credentials and secret
+key come from `secrets/host/grafana.age` as `GF_*` environment variables, which Grafana
+reads without any further wiring. Prometheus and Loki are provisioned as datasources.
 
-| Chart                   | What it is                                              |
-| ----------------------- | ------------------------------------------------------- |
-| `kube-prometheus-stack` | Prometheus, kube-state-metrics, node-exporter, Grafana   |
-| `loki`                  | Loki in `SingleBinary` mode, filesystem storage          |
-| `alloy`                 | A DaemonSet that tails pod logs and writes them to Loki  |
+Alloy tails the systemd journal and writes it to Loki. Podman logs container output to the
+journal, so application logs land there too, labelled by `unit`.
 
-Grafana is tailnet only, the same shape as the Argo CD ingress
+Dashboards are not provisioned; `/var/lib/grafana` persists, so import them in the UI
+(Node Exporter Full is 1860).
 
 ## Applications
 
-One Argo CD `Application` per app under `cluster/vps/`, pointing at that app's manifests in
-`cluster/apps/`. Argo owns the manifests and CI owns the releases. A deployment tracks a
-mutable image tag with `imagePullPolicy: Always`, so shipping a new build is pushing that tag
-and restarting the deployment.
+One file per application under `modules/nixos/apps/`. It declares the container, its
+nginx vhost, and the systemd ordering; the image tag is mutable and CI restarts the unit
+after pushing to it, so releases never commit here. Every build is also pushed as
+`:<sha>`, which is what to pin if a rollout has to be held back.
 
-Adding an app: give it a database in `modules/nixos/databases.nix`, manifests in
-`cluster/apps/<app>/`, an `Application` in `cluster/vps/`, and its credentials in
-`secrets/cluster/<app>/` (below). Copy `cluster/apps/hundred/ci-deploy.yaml` across with the
-namespace changed; the verbs it binds are shared, so only those three objects repeat.
+Adding an app: give it a database in `modules/nixos/databases.nix`, an env file in
+`secrets/host/<app>.age`, a module in `modules/nixos/apps/<app>.nix`, and an import in
+`modules/nixos/default.nix`.
 
 ### The deploy credential
 
-CI authenticates with a service account token. Mint the kubeconfig once, on the server, and
-put it in the app repo's Actions secrets as `K8S_DEPLOY_KUBECONFIG`:
+CI restarts the container over SSH on the tailnet. `modules/nixos/deploy.nix` holds a
+`deploy` user whose only authorized key is pinned to a forced command, so the key cannot
+do anything else.
+
+Put the public half in `modules/nixos/deploy.nix` as `ciKey`, and the private half in the
+app CI's secrets. The workflow then ends with:
 
 ```sh
-ns=hundred
-ca=$(kubectl -n $ns get secret ci-deploy-token -o jsonpath='{.data.ca\.crt}')
-token=$(kubectl -n $ns get secret ci-deploy-token -o jsonpath='{.data.token}' | base64 -d)
-cat <<EOF | base64 -w0
-apiVersion: v1
-kind: Config
-current-context: ci
-clusters: [{name: vps, cluster: {server: https://vps.tailee6cd9.ts.net:6443, certificate-authority-data: $ca}}]
-users: [{name: ci-deploy, user: {token: $token}}]
-contexts: [{name: ci, context: {cluster: vps, user: ci-deploy, namespace: $ns}}]
-EOF
+ssh deploy@vps.tailee6cd9.ts.net
 ```
-
-The runner reaches port 6443 over tailscale, so the repo also needs `TS_OAUTH_CLIENT_ID` and
-`TS_OAUTH_SECRET` from a tailnet OAuth client that can issue `tag:ci` nodes.
 
 ## Prerequisites
 
-`nix develop` gives you terraform, agenix, kubectl, helm, argocd and k9s.
+`nix develop` gives you terraform, agenix, age and the UpCloud CLI.
 
 ### Secrets
 
-Secrets are [agenix](https://github.com/ryantm/agenix) files under `secrets/`
+Secrets are [agenix](https://github.com/ryantm/agenix) files under `secrets/`, one per
+service or goal, each a list of `KEY=VALUE` lines:
 
 ```
-secrets/env/<name>.age                 list of KEY=VALUE pairs
-secrets/cluster/<namespace>/<KEY>.age  one bare value per file
+secrets/env/<goal>.age      workstation only, sourced by scripts/tf.sh
+secrets/host/<service>.age  workstation and vps, handed to a unit as an EnvironmentFile
 ```
 
-Everything in `cluster/` is published by `modules/nixos/cluster-secrets.nix`, which reads 
-the tree at build time and applies it once k3s is up. Each namespace gets a single 
-secret called `env` whose keys are the file names.
+`secrets/secrets.nix` lists both and decides who can decrypt what. Nothing unpacks these
+files: the key names are chosen so the consuming service reads them straight out of its
+own environment.
 
 ## PostgreSQL
 
-Postgres runs on the host, not in the cluster, so nothing in k3s holds state that cannot be
-dropped and rebuilt from git. It listens on every interface, because the cni0 gateway address
-does not exist until k3s has started; the firewalls are the only thing keeping 5432 off the
-public interface.
+Postgres runs on the host, not in a container, so no container holds state that cannot be
+dropped and rebuilt.
 
 ### Per-service databases
 
 `modules/nixos/databases.nix` is a list of names. Each one gets a database, a role of the
-same name that owns it, and a password from `secrets/cluster/<name>/DB_PASSWORD.age`. Each
+same name that owns it, and a password from `DB_PASSWORD` in `secrets/host/<name>.age`.
+That is the same file the application container receives, and the password inside its
+`DATABASE_URL` is the same value, so the role and the client cannot drift apart. Each
 service only has access to its own database.
 
-That is the same file the cluster publishes to the application, so the role password and the
-password the pod connects with cannot drift apart. Pods reach the host at
-`postgres.default.svc.cluster.local:5432` through the service in `modules/nixos/postgres.nix`.
+Containers reach the host at `host.containers.internal:5432` over the podman bridge, which
+`pg_hba` admits for `10.88.0.0/16` and which the firewall trusts. 5432 is not open on any
+other interface.
 
 ### Backups
 
 `services.postgresqlBackup` dumps every database to `/var/backup/postgresql` at 03:00 daily.
-That directory is on the root disk, so it survives a k3s wipe but not a Terraform destroy;
+That directory is on the root disk, so it survives a rebuild but not a Terraform destroy;
 ship it off-box with the `rclone` that is already in the package set.
 
 ## Provisioning

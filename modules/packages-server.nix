@@ -10,9 +10,4 @@ with pkgs;
   pciutils
   nmap
   tcpdump
-
-  kubectl
-  kubernetes-helm
-  k9s
-  argocd
 ]

@@ -18,9 +18,11 @@ in
     inputs.agenix.nixosModules.default
     ./hardware.nix
     ./disko.nix
-    ./k3s.nix
-    ./cluster-secrets.nix
+    ./web.nix
     ./postgres.nix
+    ./monitoring.nix
+    ./deploy.nix
+    ./apps/hundred.nix
   ];
 
   # System and Nix
@@ -100,6 +102,10 @@ in
     enable = true;
     allowedTCPPorts = [ 22 ];
     allowedUDPPorts = [ config.services.tailscale.port ];
-    trustedInterfaces = [ "tailscale0" ];
+    # Containers reach host services, postgres above all, over the podman bridge.
+    trustedInterfaces = [
+      "tailscale0"
+      "podman0"
+    ];
   };
 }

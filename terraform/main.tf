@@ -1,6 +1,6 @@
 resource "upcloud_server" "vps" {
   hostname = var.hostname
-  title    = "${var.hostname} (nixos, k3s)"
+  title    = "${var.hostname} (nixos)"
   zone     = var.zone
   plan     = var.plan
   metadata = true
