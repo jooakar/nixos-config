@@ -11,12 +11,12 @@ variable "zone" {
 
 variable "plan" {
   type    = string
-  default = "STARTER-4xCPU-8GB"
+  default = "STARTER-2xCPU-4GB"
 }
 
 variable "storage_size" {
   type        = number
-  default     = 40
+  default     = 30
   description = "Must match the storage included in var.plan."
 }
 
