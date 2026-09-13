@@ -38,6 +38,10 @@
     {
       forceSSL = true;
       enableACME = true;
+      # nginx defaults acmeRoot to a webroot and then forces dnsProvider to
+      # null, which would quietly downgrade every cert to HTTP-01. Null here
+      # lets security.acme.defaults.dnsProvider apply.
+      acmeRoot = null;
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString port}";
         proxyWebsockets = true;

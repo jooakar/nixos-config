@@ -57,6 +57,10 @@ in
       common = {
         path_prefix = "/var/lib/loki";
         replication_factor = 1;
+        # Without this Loki advertises the first non-loopback address it finds
+        # to its own rings and query frontend, then cannot dial them on the
+        # loopback-only gRPC listener above and rejects every write with a 500.
+        instance_addr = "127.0.0.1";
         ring.kvstore.store = "inmemory";
         storage.filesystem = {
           chunks_directory = "/var/lib/loki/chunks";

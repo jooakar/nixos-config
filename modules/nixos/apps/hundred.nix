@@ -55,9 +55,15 @@ in
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
     environment.REGISTRY_AUTH_FILE = authFile;
+    # network-online.target is reached before DNS necessarily resolves, so the
+    # first attempt after a boot can fail to look up the registry.
+    startLimitIntervalSec = 300;
+    startLimitBurst = 10;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      Restart = "on-failure";
+      RestartSec = "5s";
       EnvironmentFile = config.age.secrets.ghcr.path;
     };
     script = ''
