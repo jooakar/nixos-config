@@ -32,7 +32,15 @@ in
     # having created it, so listen everywhere; the firewall is what keeps 5432
     # off every interface but podman0 and the tailnet.
     enableTCPIP = true;
-    settings.password_encryption = "scram-sha-256";
+    settings = {
+      password_encryption = "scram-sha-256";
+      log_connections = true;
+      log_disconnections = true;
+      log_min_duration_statement = 250;
+      log_lock_waits = true;
+      log_temp_files = 0;
+      log_autovacuum_min_duration = 0;
+    };
 
     ensureDatabases = databases;
     ensureUsers = map (app: {

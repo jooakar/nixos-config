@@ -103,6 +103,12 @@ in
         source_labels = ["__journal__hostname"]
         target_label  = "host"
       }
+      // One stream per ssh login otherwise.
+      rule {
+        source_labels = ["__journal__systemd_unit"]
+        regex         = "(session-.*scope|user@.*service|user-runtime-dir@.*service)"
+        action        = "drop"
+      }
     }
 
     loki.source.journal "default" {
@@ -131,6 +137,13 @@ in
       # Read from the environment file below, like the admin credentials.
       security.secret_key = "$__env{GF_SECURITY_SECRET_KEY}";
     };
+    # Provisioned dashboards are read-only; edit a copy, export, commit.
+    provision.dashboards.settings.providers = [
+      {
+        name = "repo";
+        options.path = ../../config/grafana/dashboards;
+      }
+    ];
     provision.datasources.settings.datasources = [
       {
         name = "Prometheus";

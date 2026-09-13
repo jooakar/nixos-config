@@ -1,0 +1,112 @@
+{
+  "uid": "hundred",
+  "title": "hundred",
+  "tags": ["hundred", "logs"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "1m",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "search",
+        "label": "Search",
+        "type": "textbox",
+        "query": "",
+        "current": { "text": "", "value": "", "selected": false },
+        "description": "Case-insensitive filter applied to the stream panel below"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Lines (1h)",
+      "gridPos": { "h": 4, "w": 5, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "refId": "A", "expr": "sum(count_over_time({unit=\"podman-hundred.service\"}[1h]))" }],
+      "fieldConfig": { "defaults": { "decimals": 0, "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "title": "Errors (1h)",
+      "gridPos": { "h": 4, "w": 5, "x": 5, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "refId": "A", "expr": "sum(count_over_time({unit=\"podman-hundred.service\"} |~ \"(?i)error|exception|fatal|unhandled\" [1h]))" }],
+      "fieldConfig": { "defaults": { "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 25 }] } }, "overrides": [] },
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "title": "Restarts (24h)",
+      "gridPos": { "h": 4, "w": 5, "x": 10, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "refId": "A", "expr": "sum(count_over_time({unit=\"podman-hundred.service\"} |= \"Started podman-hundred.service\" [24h]))" }],
+      "fieldConfig": { "defaults": { "decimals": 0, "color": { "mode": "fixed", "fixedColor": "purple" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "title": "Database size",
+      "gridPos": { "h": 4, "w": 4, "x": 15, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "pg_database_size_bytes{datname=\"hundred\"}" }],
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "fixed", "fixedColor": "blue" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "type": "stat",
+      "title": "DB connections",
+      "gridPos": { "h": 4, "w": 5, "x": 19, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "pg_stat_database_numbackends{datname=\"hundred\"}" }],
+      "fieldConfig": { "defaults": { "decimals": 0, "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Log volume",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate({unit=\"podman-hundred.service\"}[5m]))", "legendFormat": "all" },
+        { "refId": "B", "expr": "sum(rate({unit=\"podman-hundred.service\"} |~ \"(?i)error|exception|fatal|unhandled\" [5m]))", "legendFormat": "errors" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "logs", "custom": { "fillOpacity": 10, "lineWidth": 2 } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "errors" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] }
+        ]
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP requests/s through nginx (all vhosts)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "refId": "A", "expr": "sum(rate({unit=\"nginx.service\"}[5m]))", "legendFormat": "nginx lines/s" }],
+      "fieldConfig": { "defaults": { "unit": "logs", "custom": { "fillOpacity": 10, "lineWidth": 2 } }, "overrides": [] },
+      "description": "nginx only logs errors to the journal by default, so a flat zero line here is the healthy state."
+    },
+
+    {
+      "type": "logs",
+      "title": "Errors",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 12 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "refId": "A", "expr": "{unit=\"podman-hundred.service\"} |~ \"(?i)error|exception|fatal|unhandled\"" }],
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "enableLogDetails": true }
+    },
+    {
+      "type": "logs",
+      "title": "Application log",
+      "gridPos": { "h": 13, "w": 24, "x": 0, "y": 21 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "refId": "A", "expr": "{unit=\"podman-hundred.service\"} |~ \"(?i)$search\"" }],
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "enableLogDetails": true },
+      "description": "Filtered by the Search variable at the top. Leave it empty for everything."
+    }
+  ]
+}
