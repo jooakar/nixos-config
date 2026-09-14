@@ -52,6 +52,6 @@ variable "cloudflare_account_id" {
 
 variable "tailscale_ip" {
   type        = string
-  default     = "100.115.123.13"
-  description = "The server's tailnet address, stable while the node stays in the tailnet."
+  default     = "100.64.0.1"
+  description = "The server's tailnet address, assigned by headscale. `headscale nodes list` on the server."
 }

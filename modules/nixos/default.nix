@@ -19,6 +19,7 @@ in
     ./hardware.nix
     ./disko.nix
     ./web.nix
+    ./headscale.nix
     ./postgres.nix
     ./monitoring.nix
     ./deploy.nix

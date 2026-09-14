@@ -34,6 +34,7 @@
     {
       port,
       tailnetOnly ? false,
+      extraConfig ? "",
     }:
     {
       forceSSL = true;
@@ -45,10 +46,12 @@
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString port}";
         proxyWebsockets = true;
-        extraConfig = lib.optionalString tailnetOnly ''
-          allow 100.64.0.0/10;
-          deny all;
-        '';
+        extraConfig =
+          lib.optionalString tailnetOnly ''
+            allow 100.64.0.0/10;
+            deny all;
+          ''
+          + extraConfig;
       };
     };
 

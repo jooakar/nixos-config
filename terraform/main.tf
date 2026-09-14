@@ -50,6 +50,7 @@ locals {
     { protocol = "tcp", start = "80", end = "80", comment = "http" },
     { protocol = "tcp", start = "443", end = "443", comment = "https" },
     { protocol = "udp", start = "41641", end = "41641", comment = "tailscale" },
+    { protocol = "udp", start = "3478", end = "3478", comment = "derp stun" },
     { protocol = "tcp", start = local.ephemeral_start, end = local.ephemeral_end, comment = "return traffic" },
     { protocol = "udp", start = local.ephemeral_start, end = local.ephemeral_end, comment = "return traffic" },
   ]

@@ -43,6 +43,7 @@ only thing that changes the machine.
 | Module                        | What it runs                                            |
 | ----------------------------- | ------------------------------------------------------- |
 | `modules/nixos/web.nix`       | nginx and ACME. Every cert is issued over DNS-01.        |
+| `modules/nixos/headscale.nix` | Headscale, the tailnet's coordination server and relay   |
 | `modules/nixos/postgres.nix`  | PostgreSQL, one database per application                 |
 | `modules/nixos/monitoring.nix`| Prometheus, node and postgres exporters, Loki, Alloy, Grafana |
 | `modules/nixos/apps/*.nix`    | one podman container per application                     |
@@ -51,6 +52,24 @@ only thing that changes the machine.
 Only nginx listens on a public port. Everything else binds `127.0.0.1` and is reached
 through a vhost, and vhosts built with `mkVhost { tailnetOnly = true; }` additionally
 refuse anything outside `100.64.0.0/10`.
+
+## The tailnet
+
+Nodes join with a pre-auth key. Setup:
+
+```sh
+sudo headscale users create <user>
+sudo headscale preauthkeys create --user <user> --reusable --expiration 24h
+```
+
+then on the node, `tailscale up --login-server https://head.joona.codes --auth-key <key>`
+
+Relaying goes through the embedded DERP server on the vps, with Tailscale's public relays kept
+as a fallback in `modules/nixos/headscale.nix`.
+
+Headscale's database and its noise key live in `/var/lib/headscale`, and losing them makes every
+node re-register. A timer copies both into `/var/backup/headscale` at 03:15, next to the
+postgres dumps, which is what gets shipped off-box.
 
 ## Monitoring
 
@@ -85,7 +104,7 @@ Put the public half in `modules/nixos/deploy.nix` as `ciKey`, and the private ha
 app CI's secrets. The workflow then ends with:
 
 ```sh
-ssh deploy@vps.tailee6cd9.ts.net
+ssh deploy@vps.ts.joona.codes
 ```
 
 ## Prerequisites
@@ -170,4 +189,10 @@ NixOS instead.
    `bootstrap` defaults to false, so this detaches the CD and sets
    `boot_order = "disk"`. Flipping it stops and starts the server.
 
-5. `ssh <user>@<ip>`, then `sudo tailscale up`.
+5. `ssh <user>@<ip>`, then join the tailnet with a key from `headscale preauthkeys create`:
+
+   ```sh
+   sudo tailscale up --login-server https://head.joona.codes --auth-key <key>
+   ```
+
+   `sudo headscale nodes list` then gives the address that `var.tailscale_ip` has to hold.
