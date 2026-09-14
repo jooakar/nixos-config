@@ -29,10 +29,9 @@ in
         # resolve the control server through a tailnet they cannot join yet.
         base_domain = "ts.joona.codes";
         override_local_dns = true;
-        nameservers.global = [
-          "1.1.1.1"
-          "1.0.0.1"
-        ];
+        # AdGuard on this same host, over the tailnet rather than loopback,
+        # because this is the address handed to every other node too.
+        nameservers.global = [ "100.64.0.1" ];
       };
 
       derp = {
