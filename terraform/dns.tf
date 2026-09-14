@@ -40,6 +40,7 @@ resource "cloudflare_dns_record" "server" {
 # Tailnet-only services
 resource "cloudflare_dns_record" "internal" {
   for_each = toset([
+    "dns",
     "grafana",
   ])
 

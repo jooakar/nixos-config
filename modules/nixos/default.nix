@@ -20,6 +20,7 @@ in
     ./disko.nix
     ./web.nix
     ./headscale.nix
+    ./adguard.nix
     ./postgres.nix
     ./monitoring.nix
     ./deploy.nix
