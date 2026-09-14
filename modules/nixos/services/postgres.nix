@@ -16,7 +16,7 @@ let
 in
 {
   age.secrets = lib.genAttrs databases (app: {
-    file = ../../secrets/host/${app}.age;
+    file = ../../../secrets/host/${app}.age;
     owner = "postgres";
     group = "postgres";
     mode = "0400";
@@ -83,6 +83,9 @@ in
       };
     }) databases
   );
+
+  # Containers reach host services, postgres above all, over the podman bridge.
+  networking.firewall.trustedInterfaces = [ "podman0" ];
 
   services.postgresqlBackup = {
     enable = true;

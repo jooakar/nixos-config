@@ -23,6 +23,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -73,14 +78,15 @@
           };
           modules = [
             ./modules/fonts.nix
-            ./modules/packages.nix
+            ./modules/packages/common.nix
+            ./modules/packages/workstation.nix
             ./modules/home-manager
             ./modules/darwin
           ];
         };
+      # The host file under ./hosts is the only place that picks modules.
       mkNixos =
         {
-          profile,
           hostname,
           username,
           email,
@@ -91,18 +97,13 @@
           specialArgs = {
             inherit inputs;
             inherit flakeRoot;
-            inherit profile;
             inherit hostname;
             inherit username;
             inherit email;
             inherit diskDevice;
             isDarwin = false;
           };
-          modules = [
-            ./modules/packages.nix
-            ./modules/home-manager
-            ./modules/nixos
-          ];
+          modules = [ (./hosts + "/${hostname}.nix") ];
         };
     in
     {
@@ -119,11 +120,16 @@
         email = "jook@netlight.com";
       };
       nixosConfigurations.vps = mkNixos {
-        profile = "server";
         hostname = "vps";
         username = "joona";
         email = "joona.karkkainen@gmail.com";
         diskDevice = "/dev/vda";
+      };
+      nixosConfigurations.carbon = mkNixos {
+        hostname = "carbon";
+        username = "joona";
+        email = "joona.karkkainen@gmail.com";
+        diskDevice = "/dev/nvme0n1";
       };
 
       devShells = forAllSystems (

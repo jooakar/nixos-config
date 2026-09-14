@@ -5,7 +5,7 @@
   ...
 }:
 {
-  age.secrets.acme.file = ../../secrets/host/acme.age;
+  age.secrets.acme.file = ../../../secrets/host/acme.age;
 
   # Every certificate is issued over DNS-01, so nothing has to reach port 80
   # from the internet and tailnet-only hosts can still have a public cert.

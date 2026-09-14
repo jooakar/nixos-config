@@ -2,7 +2,6 @@
   lib,
   inputs,
   flakeRoot,
-  profile,
   username,
   email,
   isDarwin,
@@ -25,7 +24,6 @@ in
     backupFileExtension = "hm-backup";
     extraSpecialArgs = {
       inherit
-        profile
         username
         email
         isDarwin

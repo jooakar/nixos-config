@@ -16,15 +16,6 @@ in
   imports = [
     inputs.disko.nixosModules.disko
     inputs.agenix.nixosModules.default
-    ./hardware.nix
-    ./disko.nix
-    ./web.nix
-    ./headscale.nix
-    ./adguard.nix
-    ./postgres.nix
-    ./monitoring.nix
-    ./deploy.nix
-    ./apps/hundred.nix
   ];
 
   # System and Nix
@@ -98,16 +89,10 @@ in
     useRoutingFeatures = "client";
   };
 
-  services.qemuGuest.enable = true;
-
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22 ];
     allowedUDPPorts = [ config.services.tailscale.port ];
-    # Containers reach host services, postgres above all, over the podman bridge.
-    trustedInterfaces = [
-      "tailscale0"
-      "podman0"
-    ];
+    trustedInterfaces = [ "tailscale0" ];
   };
 }

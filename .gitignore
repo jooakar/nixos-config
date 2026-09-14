@@ -9,3 +9,4 @@ result
 terraform.tfvars
 
 .direnv
+.claude/settings.local.json

@@ -1,0 +1,18 @@
+{
+  imports = [
+    ../modules/packages/common.nix
+    ../modules/packages/server.nix
+    ../modules/home-manager
+    ../modules/nixos/base.nix
+    ../modules/nixos/hardware/vps.nix
+    ../modules/nixos/disko/vps.nix
+    ../modules/nixos/services/web.nix
+    ../modules/nixos/services/headscale.nix
+    ../modules/nixos/services/adguard.nix
+    ../modules/nixos/services/postgres.nix
+    ../modules/nixos/services/monitoring.nix
+    ../modules/nixos/services/node-exporter.nix
+    ../modules/nixos/services/deploy.nix
+    ../modules/nixos/apps/hundred.nix
+  ];
+}

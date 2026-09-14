@@ -2,30 +2,42 @@
 
 Hosts:
 
-| Host         | Platform       | Built with                            |
-| ------------ | -------------- | ------------------------------------- |
-| `maxos`      | aarch64-darwin | `make darwin NIXNAME=maxos`           |
-| `maxos-work` | aarch64-darwin | `make darwin NIXNAME=maxos-work`      |
-| `vps`        | x86_64-linux   | `make nixos` (on the server)          |
+| Host         | Platform       | What it is                | Built with                       |
+| ------------ | -------------- | ------------------------- | -------------------------------- |
+| `maxos`      | aarch64-darwin | personal laptop           | `make darwin NIXNAME=maxos`      |
+| `maxos-work` | aarch64-darwin | work laptop               | `make darwin NIXNAME=maxos-work` |
+| `vps`        | x86_64-linux   | UpCloud server            | `make nixos NIXNAME=vps`         |
+| `carbon`     | x86_64-linux   | X1 Carbon gen 5, at home  | `make nixos NIXNAME=carbon`      |
 
-Darwin and servers share `modules/packages.nix` and `modules/home-manager`. Darwin-only
-bits are gated on the `isDarwin` flag passed through `specialArgs`.
+Darwin-only bits are gated on the `isDarwin` flag passed through `specialArgs`.
 
 ## Layout
 
 ```
-config/       dotfiles copied into place by home-manager
-modules/      the machine configs: darwin, nixos, home-manager
-modules/nixos/apps/  one file per application running on the server
-secrets/      agenix-encrypted env files, one rules file
-terraform/    the UpCloud server, its firewall, and the DNS records
-scripts/tf.sh decrypts credentials, then execs terraform
+hosts/<name>.nix     the only place that picks modules for a machine
+config/              dotfiles copied into place by home-manager
+modules/packages/    common, workstation and server package sets, imported per host
+modules/nixos/base.nix        everything every NixOS host gets
+modules/nixos/hardware/       one file per machine's hardware and bootloader
+modules/nixos/disko/          one file per machine's disk layout
+modules/nixos/services/       one file per service, imported by the hosts that run it
+modules/nixos/apps/           one file per application running on the server
+secrets/             agenix-encrypted env files, one rules file
+terraform/           the UpCloud server, its firewall, and the DNS records
+scripts/tf.sh        decrypts credentials, then execs terraform
 ```
+
+Nothing is switched on by a profile flag: a host runs a service because
+`hosts/<name>.nix` imports it. `modules/packages/*.nix` are ordinary modules that add to
+`environment.systemPackages`, so a host imports the sets it wants instead of concatenating
+lists. `vps` and `carbon` both take `common` + `server`; the darwin hosts take `common` +
+`workstation`, and their personal/work difference is only the homebrew cask overlay in
+`modules/darwin/<profile>.nix`.
 
 ## Deploys
 
-Terraform provisions the machine; it does not deploy config. Use `make nixos` on the server,
-or remotely:
+Terraform provisions the machine; it does not deploy config. Use `make nixos NIXNAME=<host>`
+on the machine itself, or remotely:
 
 ```sh
 nix run nixpkgs#nixos-rebuild -- switch --flake 'path:.#vps' \
@@ -42,12 +54,14 @@ only thing that changes the machine.
 
 | Module                        | What it runs                                            |
 | ----------------------------- | ------------------------------------------------------- |
-| `modules/nixos/web.nix`       | nginx and ACME. Every cert is issued over DNS-01.        |
-| `modules/nixos/headscale.nix` | Headscale, the tailnet's coordination server and relay   |
-| `modules/nixos/postgres.nix`  | PostgreSQL, one database per application                 |
-| `modules/nixos/monitoring.nix`| Prometheus, node and postgres exporters, Loki, Alloy, Grafana |
-| `modules/nixos/apps/*.nix`    | one podman container per application                     |
-| `modules/nixos/deploy.nix`    | the restricted SSH identity CI deploys with              |
+| `services/web.nix`           | nginx and ACME. Every cert is issued over DNS-01.        |
+| `services/headscale.nix`     | Headscale, the tailnet's coordination server and relay   |
+| `services/adguard.nix`       | AdGuard Home, the tailnet's resolver                     |
+| `services/postgres.nix`      | PostgreSQL, one database per application                 |
+| `services/monitoring.nix`    | Prometheus, the postgres exporter, Loki, Alloy, Grafana  |
+| `services/node-exporter.nix` | the node exporter. `carbon` runs this one too.           |
+| `apps/*.nix`                 | one podman container per application                     |
+| `services/deploy.nix`        | the restricted SSH identity CI deploys with              |
 
 Only nginx listens on a public port. Everything else binds `127.0.0.1` and is reached
 through a vhost, and vhosts built with `mkVhost { tailnetOnly = true; }` additionally
@@ -80,8 +94,13 @@ reads without any further wiring. Prometheus and Loki are provisioned as datasou
 Alloy tails the systemd journal and writes it to Loki. Podman logs container output to the
 journal, so application logs land there too, labelled by `unit`.
 
-Dashboards are not provisioned; `/var/lib/grafana` persists, so import them in the UI
-(Node Exporter Full is 1860).
+Dashboards are provisioned read-only from `config/grafana/dashboards`; to change one, edit a
+copy in the UI, export it, and commit the JSON. `/var/lib/grafana` persists, so anything
+imported by hand in the UI survives too.
+
+`carbon` is scraped over the tailnet at `carbon.ts.joona.codes:9100` as the `node-carbon`
+job. Every host that imports `services/node-exporter.nix` binds 9100 on all interfaces;
+9100 is never in `allowedTCPPorts`, so only loopback and the tailnet reach it.
 
 ## Applications
 
@@ -90,9 +109,9 @@ nginx vhost, and the systemd ordering; the image tag is mutable and CI restarts 
 after pushing to it, so releases never commit here. Every build is also pushed as
 `:<sha>`, which is what to pin if a rollout has to be held back.
 
-Adding an app: give it a database in `modules/nixos/databases.nix`, an env file in
+Adding an app: give it a database in `modules/nixos/services/databases.nix`, an env file in
 `secrets/host/<app>.age`, a module in `modules/nixos/apps/<app>.nix`, and an import in
-`modules/nixos/default.nix`.
+`hosts/vps.nix`.
 
 ### The deploy credential
 
@@ -196,3 +215,70 @@ NixOS instead.
    ```
 
    `sudo headscale nodes list` then gives the address that `var.tailscale_ip` has to hold.
+
+## carbon
+
+An X1 Carbon gen 5 at home, headless, on the tailnet. It runs no service the vps already
+runs; it is a client of headscale and AdGuard and a scrape target for Prometheus. Its root
+disk is LUKS with ext4 inside (`modules/nixos/disko/carbon.nix`); the passphrase is typed at
+boot. The lid is ignored so closing it does not suspend the machine, and TLP keeps the
+battery between 75% and 80% rather than holding it at full charge.
+
+`console.keyMap = "fi"` there, which also reaches the initrd, so the LUKS prompt reads the
+keycaps rather than defaulting to `us`. The vps is left alone: its console is UpCloud's
+browser one, which applies a layout of its own and would translate twice.
+
+It is also the one host where `users.mutableUsers` is back on. The vps is publicly reachable
+and key-only, so it stays declarative; on carbon, `mutableUsers = false` rewrites every
+shadow entry to `!` on each activation, and activation runs on *every boot*, so a password
+set with `passwd` never survives to the login prompt. Since carbon is physically in reach,
+the nixpkgs default applies and `passwd` sticks.
+
+None of that is normally load-bearing: ethernet comes up on its own and ssh is the way in.
+If it ever does break, the recovery path is the USB installer plus `nixos-enter`, which
+gives root without any password.
+
+External drives and the media library are not configured yet.
+
+### Installing it
+
+1. Write a NixOS minimal x86_64 ISO to a USB stick (`diskutil unmountDisk /dev/diskN` then
+   `sudo dd if=<iso> of=/dev/rdiskN bs=4m`).
+2. Boot it (F12 for the boot menu, Secure Boot off). Plug in ethernet; the gen 5 has no port
+   of its own, so this is the Lenovo adapter or a USB dongle. NetworkManager runs on the
+   installer and picks a wired link up by itself. For wifi instead, the `nixos` user is
+   already in the `networkmanager` group, so `nmtui` works without sudo.
+
+   Whatever you do here does not carry over: the installer's connection lives on its own
+   tmpfs. Ethernet is what makes the installed system reachable on first boot.
+3. Check the disk path with `lsblk`; `flake.nix` assumes `/dev/nvme0n1`.
+4. Clone this repo onto the installer, then partition, format and mount:
+
+   ```sh
+   echo -n '<luks passphrase>' > /tmp/luks.key
+   sudo nix --experimental-features 'nix-command flakes' run github:nix-community/disko -- \
+     --mode destroy,format,mount --flake 'path:/tmp/nixos-config#carbon'
+   ```
+
+5. Install. The way in is the key in `config/ssh-keys`, which `base.nix` gives to both
+   `joona` and `root`:
+
+   ```sh
+   sudo nixos-install --flake 'path:/tmp/nixos-config#carbon' --no-root-password
+   ```
+
+   Optionally set a console password too. On carbon it persists, because `mutableUsers` is
+   on. Do it under the same keymap the machine boots with, or use letters and digits only:
+
+   ```sh
+   sudo nixos-enter --root /mnt -c 'passwd joona'
+   ```
+
+6. Reboot, pull the USB, unlock at the LUKS prompt, then ssh in over ethernet and join the
+   tailnet with a key from `headscale preauthkeys create`:
+
+   ```sh
+   sudo tailscale up --login-server https://head.joona.codes --auth-key <key>
+   ```
+
+7. `nixos-rebuild switch` on the vps so Prometheus picks up the `node-carbon` target.

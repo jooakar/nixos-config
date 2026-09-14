@@ -16,9 +16,15 @@ let
     job_name = job;
     static_configs = [ { targets = [ "127.0.0.1:${toString port}" ]; } ];
   };
+
+  # Other tailnet nodes run the same node-exporter module, reached by magic DNS.
+  scrapeNode = host: {
+    job_name = "node-${host}";
+    static_configs = [ { targets = [ "${host}.ts.joona.codes:9100" ]; } ];
+  };
 in
 {
-  age.secrets.grafana.file = ../../secrets/host/grafana.age;
+  age.secrets.grafana.file = ../../../secrets/host/grafana.age;
 
   services.prometheus = {
     enable = true;
@@ -30,12 +36,9 @@ in
       (scrape "node" config.services.prometheus.exporters.node.port)
       (scrape "postgres" config.services.prometheus.exporters.postgres.port)
       (scrape "loki" lokiPort)
+      (scrapeNode "carbon")
     ];
 
-    exporters.node = {
-      enable = true;
-      listenAddress = "127.0.0.1";
-    };
     exporters.postgres = {
       enable = true;
       listenAddress = "127.0.0.1";
@@ -141,7 +144,7 @@ in
     provision.dashboards.settings.providers = [
       {
         name = "repo";
-        options.path = ../../config/grafana/dashboards;
+        options.path = ../../../config/grafana/dashboards;
       }
     ];
     provision.datasources.settings.datasources = [

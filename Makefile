@@ -7,9 +7,9 @@ darwin:
 
 build: darwin
 
-# NixOS. Run on the server itself.
+# NixOS. Run on the machine itself: make nixos NIXNAME=vps
 nixos:
-	sudo nixos-rebuild switch --flake ".#vps"
+	sudo nixos-rebuild switch --flake ".#${NIXNAME}"
 
 # When first setting up the UpCloud VPS, this boots from a NixOS CD
 # Other steps in README

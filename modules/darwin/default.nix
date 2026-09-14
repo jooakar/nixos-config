@@ -37,6 +37,9 @@ in
   system.primaryUser = username;
   networking.hostName = hostname;
 
+  # The daemon comes from the OrbStack cask; only the CLI is needed here.
+  environment.systemPackages = [ pkgs.docker ];
+
   # MacOS settings
   security.pam.services.sudo_local.touchIdAuth = true;
 

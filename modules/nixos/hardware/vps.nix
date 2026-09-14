@@ -20,4 +20,6 @@
     efiInstallAsRemovable = true;
   };
   boot.loader.efi.canTouchEfiVariables = false;
+
+  services.qemuGuest.enable = true;
 }

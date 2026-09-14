@@ -15,6 +15,12 @@
         IdentityFile = "~/.ssh/id_ed25519";
         IdentitiesOnly = true;
       };
+      "carbon vps" = {
+        HostName = "%h.ts.joona.codes";
+        User = "joona";
+        IdentityFile = "~/.ssh/id_ed25519";
+        IdentitiesOnly = true;
+      };
     };
   };
 }
