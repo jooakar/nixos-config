@@ -1,15 +1,27 @@
-# One agenix file per service or goal, each a list of KEY=VALUE lines.
+# One agenix file per service or goal, KEY=VALUE lines unless noted otherwise.
 #
 #   secrets/env/<goal>.age      sourced by scripts/tf.sh on the workstation
-#   secrets/host/<service>.age  handed to a unit on the vps as an EnvironmentFile
+#   secrets/host/<service>.age  handed to a unit as an EnvironmentFile, or read
+#                               from disk by it, on the host(s) listed below
 let
   joona = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJSsuGp5k0SlENWdaMVCeuwiLurnwBBLaIRiXIx67JY3 jooakar";
   vps = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOPUVEtEqmwMuhGx5Nhd0Ij3Vv18JMIRDdVzTKs6oaTx root@vps";
+  carbon = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0wkJyBy3yT2oLvUc49OyWwmRD4lwNdDakX0tve1VRo root@carbon";
 
   workstation.publicKeys = [ joona ];
-  host.publicKeys = [
+  # A host only gets the secrets it actually runs something with.
+  vpsHost.publicKeys = [
     joona
     vps
+  ];
+  carbonHost.publicKeys = [
+    joona
+    carbon
+  ];
+  bothHosts.publicKeys = [
+    joona
+    vps
+    carbon
   ];
 
   env = [
@@ -18,12 +30,19 @@ let
     "cloudflare-api" # CLOUDFLARE_API_TOKEN, Zone:Read and DNS:Edit on both zones
   ];
 
-  hostEnv = [
-    "acme" # CLOUDFLARE_DNS_API_TOKEN, the name lego reads
+  vpsEnv = [
     "ghcr" # GHCR_USERNAME / GHCR_TOKEN, read:packages is enough
     "grafana" # GF_SECURITY_ADMIN_USER / GF_SECURITY_ADMIN_PASSWORD
     # Per-application. DB_PASSWORD is what postgres.nix creates a role with
     "hundred"
+  ];
+
+  carbonEnv = [
+    "protonvpn" # a wg-quick config file, not KEY=VALUE
+  ];
+
+  sharedEnv = [
+    "acme" # CLOUDFLARE_DNS_API_TOKEN, the name lego reads
   ];
 
   rule = prefix: recipients: name: {
@@ -31,4 +50,9 @@ let
     value = recipients;
   };
 in
-builtins.listToAttrs (map (rule "env" workstation) env ++ map (rule "host" host) hostEnv)
+builtins.listToAttrs (
+  map (rule "env" workstation) env
+  ++ map (rule "host" vpsHost) vpsEnv
+  ++ map (rule "host" carbonHost) carbonEnv
+  ++ map (rule "host" bothHosts) sharedEnv
+)

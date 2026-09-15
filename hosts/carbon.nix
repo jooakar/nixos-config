@@ -8,6 +8,10 @@
     ../modules/nixos/hardware/carbon.nix
     ../modules/nixos/disko/carbon.nix
     ../modules/nixos/services/node-exporter.nix
+    ../modules/nixos/services/web.nix
+    ../modules/nixos/services/nixarr.nix
+    ../modules/nixos/services/jellyfin.nix
+    ../modules/nixos/services/qbittorrent.nix
   ];
 
   networking.networkmanager.enable = true;

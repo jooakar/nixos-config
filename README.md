@@ -56,9 +56,13 @@ only thing that changes the machine.
 | `apps/*.nix`                 | one podman container per application                     |
 | `services/deploy.nix`        | the restricted SSH identity CI deploys with              |
 
-Only nginx listens on a public port. Everything else binds `127.0.0.1` and is reached
-through a vhost, and vhosts built with `mkVhost { tailnetOnly = true; }` additionally
-refuse anything outside `100.64.0.0/10`.
+`carbon` runs `services/web.nix` too, plus the media stack:
+
+| Module                     | What it runs                                               |
+| -------------------------- | ---------------------------------------------------------- |
+| `services/nixarr.nix`      | the whole nixarr stack, the VPN namespace, and every vhost |
+| `services/jellyfin.nix`    | the QuickSync half, which nixarr has no options for        |
+| `services/qbittorrent.nix` | the Proton port forward, which nixarr does not do          |
 
 ## The tailnet
 
@@ -107,8 +111,10 @@ service or goal, each a list of `KEY=VALUE` lines:
 
 ```
 secrets/env/<goal>.age      workstation only, sourced by scripts/tf.sh
-secrets/host/<service>.age  workstation and vps, handed to a unit as an EnvironmentFile
+secrets/host/<service>.age  workstation and the host(s) that run the service
 ```
+
+`secrets.nix` lists recipients per host
 
 ## PostgreSQL
 

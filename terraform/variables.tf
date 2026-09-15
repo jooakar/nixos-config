@@ -55,3 +55,9 @@ variable "tailscale_ip" {
   default     = "100.64.0.1"
   description = "The server's tailnet address, assigned by headscale. `headscale nodes list` on the server."
 }
+
+variable "carbon_tailscale_ip" {
+  type        = string
+  default     = "100.64.0.6"
+  description = "The home server's tailnet address, assigned by headscale. `headscale nodes list` on the vps."
+}

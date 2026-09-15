@@ -1,9 +1,6 @@
-{ inputs, ... }:
+{ inputs, pkgs, ... }:
 {
-  # A 5th-gen X1 Carbon. nixos-hardware has no module for that generation; the
-  # generic one carries the trackpoint, TLP and the Intel CPU bits, and the SSD
-  # trim timer its 6th-gen module adds is named here. The Kaby Lake module is
-  # skipped deliberately: it only tunes i915, and this machine has no display.
+  # A 5th-gen ThinkPad X1 Carbon
   imports = with inputs.nixos-hardware.nixosModules; [
     lenovo-thinkpad-x1
     common-pc-ssd
@@ -20,6 +17,11 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   hardware.enableRedistributableFirmware = true;
+  # Gen9.5 QuickSync, which iHD covers and the newer oneVPL runtime does not.
+  hardware.graphics = {
+    enable = true;
+    extraPackages = [ pkgs.intel-media-driver ];
+  };
   hardware.trackpoint.device = "TPPS/2 Elan TrackPoint";
   services.thermald.enable = true;
   services.fwupd.enable = true;
