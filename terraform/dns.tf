@@ -64,6 +64,7 @@ resource "cloudflare_dns_record" "carbon_internal" {
     "bazarr",
     "seerr",
     "shelfmark",
+    "mousehole",
   ])
 
   zone_id = cloudflare_zone.joona_codes.id

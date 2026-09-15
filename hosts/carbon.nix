@@ -13,6 +13,7 @@
     ../modules/nixos/services/nixarr.nix
     ../modules/nixos/services/jellyfin.nix
     ../modules/nixos/services/qbittorrent.nix
+    ../modules/nixos/services/mousehole.nix
   ];
 
   networking.networkmanager.enable = true;

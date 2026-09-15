@@ -29,10 +29,13 @@
 
   # Services define their own vhost with this; `tailnetOnly` is the whole of
   # the access control, since the tailnet address range cannot be spoofed past
-  # the UpCloud firewall.
+  # the UpCloud firewall. `host` is for the one kind of backend that is not on
+  # loopback: a service confined to a network namespace, reached over the veth
+  # pair rather than through it.
   _module.args.mkVhost =
     {
       port,
+      host ? "127.0.0.1",
       tailnetOnly ? false,
       extraConfig ? "",
     }:
@@ -44,7 +47,7 @@
       # lets security.acme.defaults.dnsProvider apply.
       acmeRoot = null;
       locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString port}";
+        proxyPass = "http://${host}:${toString port}";
         proxyWebsockets = true;
         extraConfig =
           lib.optionalString tailnetOnly ''

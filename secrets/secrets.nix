@@ -39,6 +39,7 @@ let
 
   carbonEnv = [
     "protonvpn" # a wg-quick config file, not KEY=VALUE
+    "mousehole" # MOUSEHOLE_AUTH_PASSWORD
   ];
 
   sharedEnv = [

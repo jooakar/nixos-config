@@ -65,6 +65,22 @@ only thing that changes the machine.
 | `services/jellyfin.nix`    | the QuickSync half, which nixarr has no options for        |
 | `services/qbittorrent.nix` | the Proton port forward, which nixarr does not do          |
 
+## Media stack
+
+[nixarr](https://github.com/rasmus-kirk/nixarr) runs it, configured in `services/nixarr.nix`
+
+| Host                    | What                                   |
+| ----------------------- | -------------------------------------- |
+| `tv.joona.codes`        | Jellyfin                               |
+| `books.joona.codes`     | Audiobookshelf                         |
+| `qbt.joona.codes`       | qui, the qBittorrent web UI            |
+| `prowlarr.joona.codes`  | indexers, shared with everything below |
+| `sonarr.joona.codes`    | TV                                     |
+| `radarr.joona.codes`    | films                                  |
+| `bazarr.joona.codes`    | subtitles for both                     |
+| `seerr.joona.codes`     | requests                               |
+| `shelfmark.joona.codes` | books and audiobooks                   |
+
 ## The tailnet
 
 Nodes join with a pre-auth key. Setup:
@@ -125,7 +141,7 @@ secrets/host/<service>.age  workstation and the host(s) that run the service
 same name that owns it, and a password from `DB_PASSWORD` in `secrets/host/<name>.age`.
 Each service only has access to its own database.
 
-### Backups
+### Dumps
 
 `services.postgresqlBackup` dumps every database to `/var/backup/postgresql` at 03:00 daily.
 That directory is on the root disk, so it survives a rebuild. `services/restic.nix` then
