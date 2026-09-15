@@ -25,8 +25,6 @@ in
 
       dns = {
         magic_dns = true;
-        # Must not be a parent of the server_url host, or clients would have to
-        # resolve the control server through a tailnet they cannot join yet.
         base_domain = "ts.joona.codes";
         override_local_dns = true;
         # AdGuard on this same host, over the tailnet rather than loopback,

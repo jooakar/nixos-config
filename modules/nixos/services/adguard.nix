@@ -9,9 +9,6 @@ in
     host = "127.0.0.1";
     inherit port;
 
-    # Declared keys win on every start, but the web interface stays usable for
-    # the things that are tedious to express here: one-off allow rules while
-    # something is broken, client names, the query log.
     mutableSettings = true;
 
     settings = {

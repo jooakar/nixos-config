@@ -58,9 +58,9 @@
         "x86_64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs devSystems;
+
       mkDarwin =
         {
-          profile,
           hostname,
           username,
           email,
@@ -70,21 +70,13 @@
             inherit inputs;
             inherit nix-homebrew;
             inherit flakeRoot;
-            inherit profile;
             inherit hostname;
             inherit username;
             inherit email;
             isDarwin = true;
           };
-          modules = [
-            ./modules/fonts.nix
-            ./modules/packages/common.nix
-            ./modules/packages/workstation.nix
-            ./modules/home-manager
-            ./modules/darwin
-          ];
+          modules = [ (./hosts + "/${hostname}.nix") ];
         };
-      # The host file under ./hosts is the only place that picks modules.
       mkNixos =
         {
           hostname,
@@ -108,16 +100,14 @@
     in
     {
       darwinConfigurations.maxos = mkDarwin {
-        profile = "personal";
         hostname = "maxos";
         username = "joona";
         email = "joona.karkkainen@gmail.com";
       };
-      darwinConfigurations.maxos-work = mkDarwin {
-        profile = "work";
-        hostname = "maxos-work";
-        username = "jook";
-        email = "jook@netlight.com";
+      darwinConfigurations.work = mkDarwin {
+        hostname = "work";
+        username = "joona";
+        email = "joona.karkkainen@gmail.com";
       };
       nixosConfigurations.vps = mkNixos {
         hostname = "vps";

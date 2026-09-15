@@ -1,13 +1,11 @@
 {
   pkgs,
   nix-homebrew,
-  profile,
   hostname,
   username,
   ...
 }:
 let
-  profileOverlay = import (./. + "/${profile}.nix");
   sharedCasks = [
     "orbstack"
     "ghostty"
@@ -97,12 +95,10 @@ in
 
   homebrew = {
     enable = true;
-    casks = sharedCasks ++ profileOverlay.casks;
+    casks = sharedCasks;
     onActivation = {
       autoUpdate = true;
       upgrade = true;
     };
-    taps = profileOverlay.taps;
-    brews = profileOverlay.brews;
   };
 }
