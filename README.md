@@ -55,6 +55,7 @@ only thing that changes the machine.
 | `services/node-exporter.nix` | the node exporter. `carbon` runs this one too.           |
 | `apps/*.nix`                 | one podman container per application                     |
 | `services/deploy.nix`        | the restricted SSH identity CI deploys with              |
+| `services/restic.nix`        | `mkBackup`, and the R2 credential. `carbon` runs it too  |
 
 `carbon` runs `services/web.nix` too, plus the media stack:
 
@@ -127,7 +128,34 @@ Each service only has access to its own database.
 ### Backups
 
 `services.postgresqlBackup` dumps every database to `/var/backup/postgresql` at 03:00 daily.
-That directory is on the root disk, so it survives a rebuild.
+That directory is on the root disk, so it survives a rebuild. `services/restic.nix` then
+ships those dumps offsite; see below.
+
+## Backups
+
+`services/restic.nix` exposes `mkBackup`, and services declare what they want kept.
+
+```nix
+services.restic.backups.<name> = mkBackup { paths = [ ... ]; exclude = [ ... ]; };
+```
+
+Everything lands in one Cloudflare R2 bucket, one repository per host, daily at 04:00 with
+a 30 minute spread, keeping 7 daily, 5 weekly and 12 monthly snapshots. Repositories
+initialise themselves, so a new host needs nothing done to the bucket by hand.
+
+| Host     | What                        | Why                                              |
+| -------- | --------------------------- | ------------------------------------------------ |
+| `vps`    | `/var/backup/postgresql`    | the dumps, which are consistent; not the cluster |
+| `carbon` | `/data/.state/nixarr`       | every arr's config, ABS progress, qBittorrent's resume data |
+
+### Restoring
+
+```sh
+sudo restic-nixarr snapshots            # the wrapper the module installs, per backup
+sudo restic-nixarr restore latest --target /tmp/restore
+```
+
+The wrapper carries the repository and credentials, so no flags are needed.
 
 ## Provisioning a VPS
 

@@ -1,10 +1,13 @@
 {
   config,
   inputs,
+  mkBackup,
   mkVhost,
   ...
 }:
 let
+  stateDir = "/data/.state/nixarr";
+
   vhosts = {
     "tv.joona.codes" = {
       port = 8096; # jellyfin
@@ -45,7 +48,7 @@ in
     # hardlink instead of copying, which is what lets a torrent keep seeding
     # after import.
     mediaDir = "/data/media";
-    stateDir = "/data/.state/nixarr";
+    inherit stateDir;
 
     vpn = {
       enable = true;
@@ -74,6 +77,15 @@ in
     bazarr.enable = true;
     seerr.enable = true;
     shelfmark.enable = true;
+  };
+
+  services.restic.backups.nixarr = mkBackup {
+    paths = [ stateDir ];
+    exclude = [
+      "${stateDir}/jellyfin/cache"
+      "${stateDir}/*/log"
+      "${stateDir}/*/logs"
+    ];
   };
 
   services.nginx.virtualHosts = builtins.mapAttrs (

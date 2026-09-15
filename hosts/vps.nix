@@ -12,6 +12,7 @@
     ../modules/nixos/services/postgres.nix
     ../modules/nixos/services/monitoring.nix
     ../modules/nixos/services/node-exporter.nix
+    ../modules/nixos/services/restic.nix
     ../modules/nixos/services/deploy.nix
     ../modules/nixos/apps/hundred.nix
   ];

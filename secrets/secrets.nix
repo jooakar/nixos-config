@@ -43,6 +43,7 @@ let
 
   sharedEnv = [
     "acme" # CLOUDFLARE_DNS_API_TOKEN, the name lego reads
+    "restic" # RESTIC_PASSWORD / AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
   ];
 
   rule = prefix: recipients: name: {

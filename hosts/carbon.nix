@@ -8,6 +8,7 @@
     ../modules/nixos/hardware/carbon.nix
     ../modules/nixos/disko/carbon.nix
     ../modules/nixos/services/node-exporter.nix
+    ../modules/nixos/services/restic.nix
     ../modules/nixos/services/web.nix
     ../modules/nixos/services/nixarr.nix
     ../modules/nixos/services/jellyfin.nix

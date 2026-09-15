@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  mkBackup,
   pkgs,
   ...
 }:
@@ -54,35 +55,39 @@ in
   };
 
   # One unit per application, so each only ever sees its own env file.
-  systemd.services = lib.listToAttrs (
-    map (app: {
-      name = "postgresql-role-${app}";
-      value = {
-        description = "Apply the ${app} database role password and grants";
-        after = [ "postgresql.service" ];
-        requires = [ "postgresql.service" ];
-        wantedBy = [ "multi-user.target" ];
-        path = [
-          config.services.postgresql.package
-          pkgs.coreutils
-        ];
-        serviceConfig = {
-          Type = "oneshot";
-          User = "postgres";
-          RemainAfterExit = true;
-          EnvironmentFile = envFile app;
+  systemd.services =
+    lib.listToAttrs (
+      map (app: {
+        name = "postgresql-role-${app}";
+        value = {
+          description = "Apply the ${app} database role password and grants";
+          after = [ "postgresql.service" ];
+          requires = [ "postgresql.service" ];
+          wantedBy = [ "multi-user.target" ];
+          path = [
+            config.services.postgresql.package
+            pkgs.coreutils
+          ];
+          serviceConfig = {
+            Type = "oneshot";
+            User = "postgres";
+            RemainAfterExit = true;
+            EnvironmentFile = envFile app;
+          };
+          script = ''
+            psql -v ON_ERROR_STOP=1 --no-psqlrc <<'SQL'
+            \set password `printenv DB_PASSWORD`
+            ALTER ROLE "${app}" WITH LOGIN PASSWORD :'password';
+            REVOKE ALL ON DATABASE "${app}" FROM PUBLIC;
+            GRANT CONNECT ON DATABASE "${app}" TO "${app}";
+            SQL
+          '';
         };
-        script = ''
-          psql -v ON_ERROR_STOP=1 --no-psqlrc <<'SQL'
-          \set password `printenv DB_PASSWORD`
-          ALTER ROLE "${app}" WITH LOGIN PASSWORD :'password';
-          REVOKE ALL ON DATABASE "${app}" FROM PUBLIC;
-          GRANT CONNECT ON DATABASE "${app}" TO "${app}";
-          SQL
-        '';
-      };
-    }) databases
-  );
+      }) databases
+    )
+    // {
+      restic-backups-postgres.after = [ "postgresqlBackup.service" ];
+    };
 
   # Containers reach host services, postgres above all, over the podman bridge.
   networking.firewall.trustedInterfaces = [ "podman0" ];
@@ -92,4 +97,9 @@ in
     startAt = "*-*-* 03:00:00";
     location = "/var/backup/postgresql";
   };
+
+  services.restic.backups.postgres = mkBackup {
+    paths = [ config.services.postgresqlBackup.location ];
+  };
+
 }
