@@ -6,14 +6,16 @@
     ../modules/nixos/base.nix
     ../modules/nixos/hardware/vps.nix
     ../modules/nixos/disko/vps.nix
-    ../modules/nixos/services/web.nix
-    ../modules/nixos/services/headscale.nix
-    ../modules/nixos/services/adguard.nix
-    ../modules/nixos/services/postgres.nix
-    ../modules/nixos/services/monitoring.nix
-    ../modules/nixos/services/node-exporter.nix
-    ../modules/nixos/services/restic.nix
-    ../modules/nixos/services/deploy.nix
-    ../modules/nixos/apps/hundred.nix
   ];
+
+  joona.services = {
+    headscale.enable = true;
+    adguard.enable = true;
+    postgres.enable = true;
+    monitoring.enable = true;
+    node-exporter.enable = true;
+    deploy.enable = true;
+  };
+
+  joona.apps.hundred.enable = true;
 }

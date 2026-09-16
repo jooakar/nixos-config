@@ -1,11 +1,12 @@
 {
   config,
   lib,
-  mkBackup,
   pkgs,
   ...
 }:
 let
+  cfg = config.joona.services.postgres;
+
   databases = import ./databases.nix;
 
   # The same file the application gets. DB_PASSWORD in it is the password
@@ -16,90 +17,92 @@ let
   podmanCidr = "10.88.0.0/16";
 in
 {
-  age.secrets = lib.genAttrs databases (app: {
-    file = ../../../secrets/host/${app}.age;
-    owner = "postgres";
-    group = "postgres";
-    mode = "0400";
-  });
+  options.joona.services.postgres.enable =
+    lib.mkEnableOption "PostgreSQL, one database per application";
 
-  # Runs on the host rather than in a container so that nothing containerised
-  # holds state that cannot be dropped and rebuilt.
-  services.postgresql = {
-    enable = true;
-    package = pkgs.postgresql_18;
+  config = lib.mkIf cfg.enable {
+    joona.services.restic.enable = true;
 
-    # Binding the bridge address directly would make startup depend on podman
-    # having created it, so listen everywhere; the firewall is what keeps 5432
-    # off every interface but podman0 and the tailnet.
-    enableTCPIP = true;
-    settings = {
-      password_encryption = "scram-sha-256";
-      log_connections = true;
-      log_disconnections = true;
-      log_min_duration_statement = 250;
-      log_lock_waits = true;
-      log_temp_files = 0;
-      log_autovacuum_min_duration = 0;
+    age.secrets = lib.genAttrs databases (app: {
+      file = ../../../secrets/host/${app}.age;
+      owner = "postgres";
+      group = "postgres";
+      mode = "0400";
+    });
+
+    services.postgresql = {
+      enable = true;
+      package = pkgs.postgresql_18;
+
+      # Binding the bridge address directly would make startup depend on podman
+      # having created it, so listen everywhere. Firewall is what keeps 5432
+      # off every interface but podman0 and the tailnet.
+      enableTCPIP = true;
+      settings = {
+        password_encryption = "scram-sha-256";
+        log_connections = true;
+        log_disconnections = true;
+        log_min_duration_statement = 250;
+        log_lock_waits = true;
+        log_temp_files = 0;
+        log_autovacuum_min_duration = 0;
+      };
+
+      ensureDatabases = databases;
+      ensureUsers = map (app: {
+        name = app;
+        ensureDBOwnership = true;
+      }) databases;
+
+      authentication = lib.concatMapStrings (app: ''
+        host ${app} ${app} ${podmanCidr} scram-sha-256
+      '') databases;
     };
 
-    ensureDatabases = databases;
-    ensureUsers = map (app: {
-      name = app;
-      ensureDBOwnership = true;
-    }) databases;
-
-    authentication = lib.concatMapStrings (app: ''
-      host ${app} ${app} ${podmanCidr} scram-sha-256
-    '') databases;
-  };
-
-  # One unit per application, so each only ever sees its own env file.
-  systemd.services =
-    lib.listToAttrs (
-      map (app: {
-        name = "postgresql-role-${app}";
-        value = {
-          description = "Apply the ${app} database role password and grants";
-          after = [ "postgresql.service" ];
-          requires = [ "postgresql.service" ];
-          wantedBy = [ "multi-user.target" ];
-          path = [
-            config.services.postgresql.package
-            pkgs.coreutils
-          ];
-          serviceConfig = {
-            Type = "oneshot";
-            User = "postgres";
-            RemainAfterExit = true;
-            EnvironmentFile = envFile app;
+    # One unit per application, so each only ever sees its own env file.
+    systemd.services =
+      lib.listToAttrs (
+        map (app: {
+          name = "postgresql-role-${app}";
+          value = {
+            description = "Apply the ${app} database role password and grants";
+            after = [ "postgresql.service" ];
+            requires = [ "postgresql.service" ];
+            wantedBy = [ "multi-user.target" ];
+            path = [
+              config.services.postgresql.package
+              pkgs.coreutils
+            ];
+            serviceConfig = {
+              Type = "oneshot";
+              User = "postgres";
+              RemainAfterExit = true;
+              EnvironmentFile = envFile app;
+            };
+            script = ''
+              psql -v ON_ERROR_STOP=1 --no-psqlrc <<'SQL'
+              \set password `printenv DB_PASSWORD`
+              ALTER ROLE "${app}" WITH LOGIN PASSWORD :'password';
+              REVOKE ALL ON DATABASE "${app}" FROM PUBLIC;
+              GRANT CONNECT ON DATABASE "${app}" TO "${app}";
+              SQL
+            '';
           };
-          script = ''
-            psql -v ON_ERROR_STOP=1 --no-psqlrc <<'SQL'
-            \set password `printenv DB_PASSWORD`
-            ALTER ROLE "${app}" WITH LOGIN PASSWORD :'password';
-            REVOKE ALL ON DATABASE "${app}" FROM PUBLIC;
-            GRANT CONNECT ON DATABASE "${app}" TO "${app}";
-            SQL
-          '';
-        };
-      }) databases
-    )
-    // {
-      restic-backups-postgres.after = [ "postgresqlBackup.service" ];
+        }) databases
+      )
+      // {
+        restic-backups-postgres.after = [ "postgresqlBackup.service" ];
+      };
+
+    # Containers reach host services, postgres above all, over the podman bridge.
+    networking.firewall.trustedInterfaces = [ "podman0" ];
+
+    services.postgresqlBackup = {
+      enable = true;
+      startAt = "*-*-* 03:00:00";
+      location = "/var/backup/postgresql";
     };
 
-  # Containers reach host services, postgres above all, over the podman bridge.
-  networking.firewall.trustedInterfaces = [ "podman0" ];
-
-  services.postgresqlBackup = {
-    enable = true;
-    startAt = "*-*-* 03:00:00";
-    location = "/var/backup/postgresql";
+    joona.backups.postgres.paths = [ config.services.postgresqlBackup.location ];
   };
-
-  services.restic.backups.postgres = mkBackup {
-    paths = [ config.services.postgresqlBackup.location ];
-  };
-
 }

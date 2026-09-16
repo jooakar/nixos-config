@@ -22,8 +22,8 @@ modules/packages/    common, workstation and server package sets, imported per h
 modules/nixos/base.nix        everything every NixOS host gets
 modules/nixos/hardware/       one file per machine's hardware and bootloader
 modules/nixos/disko/          one file per machine's disk layout
-modules/nixos/services/       one file per service, imported by the hosts that run it
-modules/nixos/apps/           one file per application running on the server
+modules/nixos/services/       one file per service, each an enable option
+modules/nixos/apps/           one file per application, each an enable option
 secrets/             agenix-encrypted env files, one rules file
 terraform/           the UpCloud server, its firewall, and the DNS records
 scripts/tf.sh        decrypts credentials, then execs terraform
@@ -31,14 +31,7 @@ scripts/tf.sh        decrypts credentials, then execs terraform
 
 ## Deploys
 
-Run `make <nixos|darwin> NIXNAME=<host>`, or remotely:
-
-```sh
-nix run nixpkgs#nixos-rebuild -- switch --flake 'path:.#<host>' \
-  --target-host root@<ip> --build-host root@<ip>
-```
-
-`system.autoUpgrade` is also enabled and pulls this repo weekly
+Run `HOST=<host> make <darwin|remote>`. `system.autoUpgrade` is also enabled and pulls this repo weekly.
 
 ## What runs on the server
 
@@ -47,7 +40,7 @@ only thing that changes the machine.
 
 | Module                       | What it runs                                             |
 | ---------------------------- | -------------------------------------------------------- |
-| `services/web.nix`           | nginx and ACME. Every cert is issued over DNS-01.        |
+| `services/web.nix`           | nginx and ACME, and the `joona.vhosts` option            |
 | `services/headscale.nix`     | Headscale, the tailnet's coordination server and relay   |
 | `services/adguard.nix`       | AdGuard Home, the tailnet's resolver                     |
 | `services/postgres.nix`      | PostgreSQL, one database per application                 |
@@ -55,7 +48,7 @@ only thing that changes the machine.
 | `services/node-exporter.nix` | the node exporter. `carbon` runs this one too.           |
 | `apps/*.nix`                 | one podman container per application                     |
 | `services/deploy.nix`        | the restricted SSH identity CI deploys with              |
-| `services/restic.nix`        | `mkBackup`, and the R2 credential. `carbon` runs it too  |
+| `services/restic.nix`        | `joona.backups`, and the R2 credential. Both hosts use it |
 
 `carbon` runs `services/web.nix` too, plus the media stack:
 
@@ -64,22 +57,12 @@ only thing that changes the machine.
 | `services/nixarr.nix`      | the whole nixarr stack, the VPN namespace, and every vhost |
 | `services/jellyfin.nix`    | the QuickSync half, which nixarr has no options for        |
 | `services/qbittorrent.nix` | the Proton port forward, which nixarr does not do          |
+| `services/ddns.nix`        | `home.joona.codes`, which DNA keeps moving                 |
 
 ## Media stack
 
 [nixarr](https://github.com/rasmus-kirk/nixarr) runs it, configured in `services/nixarr.nix`
 
-| Host                    | What                                   |
-| ----------------------- | -------------------------------------- |
-| `tv.joona.codes`        | Jellyfin                               |
-| `books.joona.codes`     | Audiobookshelf                         |
-| `qbt.joona.codes`       | qui, the qBittorrent web UI            |
-| `prowlarr.joona.codes`  | indexers, shared with everything below |
-| `sonarr.joona.codes`    | TV                                     |
-| `radarr.joona.codes`    | films                                  |
-| `bazarr.joona.codes`    | subtitles for both                     |
-| `seerr.joona.codes`     | requests                               |
-| `shelfmark.joona.codes` | books and audiobooks                   |
 
 ## The tailnet
 
@@ -109,8 +92,8 @@ after pushing to it.
 Adding an app:
 1. Give it a database in `modules/nixos/services/databases.nix`
 2. Give it an env file in `secrets/host/<app>.age`
-3. Give it a module in `modules/nixos/apps/<app>.nix`
-4. Import it in `hosts/<host>.nix`.
+3. Give it a module in `modules/nixos/apps/<app>.nix`, listed in `apps/default.nix`
+4. Set `joona.apps.<app>.enable = true` in `hosts/<host>.nix`.
 
 ### The deploy credential
 
@@ -124,7 +107,7 @@ CI restarts podman containers over SSH on the tailnet. `modules/nixos/deploy.nix
 ### Secrets
 
 Secrets are [agenix](https://github.com/ryantm/agenix) files under `secrets/`, one per
-service or goal, each a list of `KEY=VALUE` lines:
+service or goal.
 
 ```
 secrets/env/<goal>.age      workstation only, sourced by scripts/tf.sh
@@ -152,7 +135,7 @@ ships those dumps offsite; see below.
 `services/restic.nix` exposes `mkBackup`, and services declare what they want kept.
 
 ```nix
-services.restic.backups.<name> = mkBackup { paths = [ ... ]; exclude = [ ... ]; };
+joona.backups.<name> = { paths = [ ... ]; exclude = [ ... ]; };
 ```
 
 Everything lands in one Cloudflare R2 bucket, one repository per host, daily at 04:00 with

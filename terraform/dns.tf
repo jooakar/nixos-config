@@ -52,18 +52,14 @@ resource "cloudflare_dns_record" "internal" {
   proxied = false
 }
 
-# Tailnet-only services on carbon. A specific record beats the wildcard above.
+# Tailnet-only services on carbon.
 resource "cloudflare_dns_record" "carbon_internal" {
   for_each = toset([
-    "tv",
-    "books",
     "qbt",
     "prowlarr",
     "sonarr",
     "radarr",
     "bazarr",
-    "seerr",
-    "shelfmark",
     "mousehole",
   ])
 
@@ -73,6 +69,45 @@ resource "cloudflare_dns_record" "carbon_internal" {
   content = var.carbon_tailscale_ip
   ttl     = 300
   proxied = false
+}
+
+resource "cloudflare_dns_record" "home" {
+  # dyndns fixes these to real addresses
+  for_each = {
+    A    = "192.0.2.1"
+    AAAA = "2001:db8::1"
+  }
+
+  zone_id = cloudflare_zone.joona_codes.id
+  name    = "home.joona.codes"
+  type    = each.key
+  content = each.value
+  ttl     = 300
+  proxied = false
+
+  lifecycle {
+    ignore_changes = [content]
+  }
+}
+
+resource "cloudflare_dns_record" "carbon_public" {
+  for_each = toset([
+    "tv",
+    "books",
+    "seerr",
+    "shelfmark",
+  ])
+
+  zone_id = cloudflare_zone.joona_codes.id
+  name    = "${each.value}.joona.codes"
+  type    = "CNAME"
+  content = "home.joona.codes"
+  ttl     = 300
+  proxied = false
+
+  settings = {
+    flatten_cname = false
+  }
 }
 
 # =============================================
