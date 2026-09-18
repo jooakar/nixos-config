@@ -7,6 +7,10 @@
 let
   cfg = config.joona.services.nixarr;
   stateDir = "/data/.state/nixarr";
+
+  downlinkMbit = 200;
+  uplinkMbit = 200;
+  cap = mbit: mbit * 122 * 90 / 100;
 in
 {
   imports = [ inputs.nixarr.nixosModules.default ];
@@ -84,6 +88,18 @@ in
 
         privateTrackers.disableDhtPex = true;
         torrentQueueing.enable = false;
+
+        extraConfig.BitTorrent = {
+          "Session\\GlobalDLSpeedLimit" = cap downlinkMbit;
+          "Session\\GlobalUPSpeedLimit" = cap uplinkMbit;
+          "Session\\IncludeOverheadInLimits" = true;
+          "Session\\uTPRateLimited" = true;
+
+          "Session\\MaxConnections" = 150;
+          "Session\\MaxConnectionsPerTorrent" = 50;
+          "Session\\MaxUploads" = 16;
+          "Session\\MaxUploadsPerTorrent" = 8;
+        };
       };
 
       prowlarr.enable = true;
