@@ -112,7 +112,7 @@
       darwinConfigurations.work = mkDarwin {
         hostname = "work";
         username = "joona";
-        email = "joona.karkkainen@gmail.com";
+        email = "joona@hamina.com";
       };
       nixosConfigurations.vps = mkNixos {
         hostname = "vps";
