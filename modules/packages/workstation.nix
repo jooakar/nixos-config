@@ -11,9 +11,6 @@
 
     nil
     nixd
-    terraform
     gh
-    bitwarden-cli
-    claude-code
   ];
 }

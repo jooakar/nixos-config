@@ -16,6 +16,7 @@ let
     "nikitabobko/tap/aerospace"
     "beekeeper-studio"
     "bitwarden"
+    "claude-code@latest"
   ];
 in
 {
