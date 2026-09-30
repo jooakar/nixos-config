@@ -1,4 +1,4 @@
-{ email, ... }:
+{ email, isDarwin, ... }:
 {
   programs.git = {
     enable = true;
@@ -6,7 +6,11 @@
       "*.swp"
       ".DS_STORE"
     ];
-    signing.format = null;
+    signing = {
+      format = "ssh";
+      key = "~/.ssh/id_ed25519.pub";
+      signByDefault = isDarwin;
+    };
     settings = {
       user = {
         name = "Joona Kärkkäinen";
