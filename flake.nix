@@ -130,16 +130,13 @@
       devShells = forAllSystems (
         system:
         let
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true; # terraform is BSL
-          };
+          pkgs = nixpkgs.legacyPackages.${system};
         in
         {
           default = pkgs.mkShell {
             packages = [
               inputs.agenix.packages.${system}.default
-              pkgs.terraform
+              pkgs.opentofu
               pkgs.age
               pkgs.upcloud-cli
             ];

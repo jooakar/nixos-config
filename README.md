@@ -26,7 +26,7 @@ modules/nixos/services/       one file per service, each an enable option
 modules/nixos/apps/           one file per application, each an enable option
 secrets/             agenix-encrypted env files, one rules file
 terraform/           the UpCloud server, its firewall, and the DNS records
-scripts/tf.sh        decrypts credentials, then execs terraform
+scripts/tf.sh        decrypts credentials, then execs tofu
 ```
 
 ## Deploys
@@ -102,7 +102,7 @@ CI restarts podman containers over SSH on the tailnet. `modules/nixos/deploy.nix
 
 ## Prerequisites
 
-`nix develop` gives you terraform, agenix, age and the UpCloud CLI.
+`nix develop` gives you OpenTofu, agenix, age and the UpCloud CLI.
 
 ### Secrets
 

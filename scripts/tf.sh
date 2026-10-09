@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Decrypt the API credentials into the environment, then hand off to terraform.
+# Decrypt the API credentials into the environment, then hand off to tofu.
 # Everything in secrets/env is sourced, so a new credential is a new file there.
 set -euo pipefail
 
@@ -14,4 +14,4 @@ done
 set +a
 
 cd "$root/terraform"
-exec terraform "$@"
+exec tofu "$@"
