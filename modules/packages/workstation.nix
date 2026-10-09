@@ -12,5 +12,7 @@
     nil
     nixd
     gh
+
+    herdr
   ];
 }

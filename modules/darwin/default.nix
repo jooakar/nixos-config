@@ -17,6 +17,7 @@ let
     "beekeeper-studio"
     "bitwarden"
     "claude-code@latest"
+    "codex"
   ];
 in
 {
