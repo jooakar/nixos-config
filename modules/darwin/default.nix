@@ -43,6 +43,11 @@ in
   # MacOS settings
   security.pam.services.sudo_local.touchIdAuth = true;
 
+  # Keeps agents alive while the screen is locked but lid is open.
+  system.activationScripts.postActivation.text = ''
+    pmset -a sleep 30
+  '';
+
   system.keyboard = {
     enableKeyMapping = true;
     remapCapsLockToEscape = true;
