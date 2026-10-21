@@ -18,6 +18,7 @@ let
     "bitwarden"
     "claude-code@latest"
     "codex"
+    "t3-code"
   ];
 in
 {
