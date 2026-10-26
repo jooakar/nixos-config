@@ -9,6 +9,10 @@
       "cat" = "bat --style plain --paging=never";
     };
 
+    shellAbbrs = {
+      "gsh" = "git show --ext-diff";
+    };
+
     plugins = [
       {
         name = "grc";

@@ -5,6 +5,6 @@
     "zoom"
     "skim"
     "vlc"
-    "tailscale"
+    "tailscale-app"
   ];
 }

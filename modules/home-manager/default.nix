@@ -74,6 +74,13 @@ in
           enable = true;
           nix-direnv.enable = true;
         };
+        difftastic = {
+          enable = true;
+          git = {
+            enable = true;
+            mode = "both";
+          };
+        };
       };
     };
   };
