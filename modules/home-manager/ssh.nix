@@ -1,9 +1,8 @@
-{ lib, isDarwin, ... }:
+{ ... }:
 {
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    includes = lib.optionals isDarwin [ "~/.orbstack/ssh/config" ];
     settings = {
       "*" = {
         AddKeysToAgent = "yes";
