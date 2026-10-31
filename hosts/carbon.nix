@@ -16,6 +16,10 @@
     mousehole.enable = true;
     copyparty.enable = true;
     node-exporter.enable = true;
+    agents = {
+      enable = true;
+      domain = "t3.joona.codes";
+    };
   };
 
   networking.networkmanager.enable = true;

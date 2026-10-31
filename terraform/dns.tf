@@ -66,6 +66,7 @@ resource "cloudflare_dns_record" "carbon_internal" {
     "seerr",
     "shelfmark",
     "files",
+    "t3",
   ])
 
   zone_id = cloudflare_zone.joona_codes.id

@@ -1,6 +1,7 @@
 {
   imports = [
     ./adguard.nix
+    ./agents
     ./copyparty.nix
     ./ddns.nix
     ./deploy.nix
