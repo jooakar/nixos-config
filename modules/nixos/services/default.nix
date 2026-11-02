@@ -1,6 +1,7 @@
 {
   imports = [
     ./adguard.nix
+    ./copyparty.nix
     ./ddns.nix
     ./deploy.nix
     ./headscale.nix

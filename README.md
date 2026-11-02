@@ -58,6 +58,7 @@ only thing that changes the machine.
 | `services/jellyfin.nix`    | the QuickSync half, which nixarr has no options for        |
 | `services/qbittorrent.nix` | the Proton port forward, which nixarr does not do          |
 | `services/ddns.nix`        | `home.joona.codes`, which DNA keeps moving                 |
+| `services/copyparty.nix`   | copyparty on `files.joona.codes`, for share links         |
 
 ## Media stack
 

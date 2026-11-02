@@ -41,6 +41,7 @@ let
     "protonvpn" # a wg-quick config file, not KEY=VALUE
     "mousehole" # MOUSEHOLE_AUTH_PASSWORD
     "cloudflare-ddns" # the bare token, not KEY=VALUE. Zone:Read and DNS:Edit
+    "copyparty" # the bare password for the joona account
   ];
 
   sharedEnv = [

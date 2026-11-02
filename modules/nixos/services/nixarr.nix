@@ -2,6 +2,7 @@
   config,
   inputs,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -81,6 +82,16 @@ in
       # Confine torrent client to use VPN
       qbittorrent = {
         enable = true;
+        # Some trackers do not allow 5.3 yet
+        package = pkgs.qbittorrent-nox.overrideAttrs (_: rec {
+          version = "5.2.4";
+          src = pkgs.fetchFromGitHub {
+            owner = "qbittorrent";
+            repo = "qBittorrent";
+            rev = "release-${version}";
+            hash = "sha256-HCfcwO8GEi4Ixfa+Ue2vgWyp407R3VDGRoLxUqJl1eM=";
+          };
+        });
         vpn.enable = true;
         qui.enable = true;
 

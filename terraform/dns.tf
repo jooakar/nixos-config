@@ -72,7 +72,7 @@ resource "cloudflare_dns_record" "carbon_internal" {
 }
 
 resource "cloudflare_dns_record" "home" {
-  # dyndns fixes these to real addresses
+  # dyndns fixes these to real addresses, and resets the TTL to auto
   for_each = {
     A    = "192.0.2.1"
     AAAA = "2001:db8::1"
@@ -86,7 +86,7 @@ resource "cloudflare_dns_record" "home" {
   proxied = false
 
   lifecycle {
-    ignore_changes = [content]
+    ignore_changes = [content, ttl]
   }
 }
 
@@ -96,6 +96,7 @@ resource "cloudflare_dns_record" "carbon_public" {
     "books",
     "seerr",
     "shelfmark",
+    "files",
   ])
 
   zone_id = cloudflare_zone.joona_codes.id
