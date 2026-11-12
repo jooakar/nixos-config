@@ -48,7 +48,7 @@ in
 
   # Keeps agents alive while the screen is locked but lid is open.
   system.activationScripts.postActivation.text = ''
-    pmset -a sleep 30
+    pmset -a sleep 60
   '';
 
   system.keyboard = {
