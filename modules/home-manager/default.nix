@@ -40,7 +40,14 @@ in
         ".claude/CLAUDE.md".source = configPath + /AGENTS.md;
         ".gemini/GEMINI.md".source = configPath + /AGENTS.md;
         ".codex/AGENTS.md".source = configPath + /AGENTS.md;
-      };
+      }
+      # Linked per skill so the skills dirs stay writable for runtime-installed skills.
+      // lib.concatMapAttrs (
+        name: _:
+        lib.genAttrs' [ ".claude/skills" ".codex/skills" ] (
+          dir: lib.nameValuePair "${dir}/${name}" { source = configPath + "/skills/${name}"; }
+        )
+      ) (builtins.readDir (configPath + /skills));
 
       home.stateVersion = "24.11";
       imports = [

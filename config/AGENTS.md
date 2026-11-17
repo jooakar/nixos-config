@@ -1,38 +1,31 @@
-# Agentic Code Instructions
+# Agent Instructions
 
-## Output
-- No sycophantic openers or closing fluff.
-- No em dashes, smart quotes, or Unicode. ASCII only.
-- Be concise. If unsure, say so. Never guess.
+Defaults across projects. Project files, templates and repo skills extend these and decide format and process; these still decide drafts, brevity and when to confirm.
 
-## Override Rule
-User instructions always override this file.
+**Act on reversible work.** Edits, tests, commits, draft PRs, review rounds and pushes to my own feature branches need no permission: do them and report. After a rebase, restack or fixup, force-push those branches with `--force-with-lease`. Confirm first before anything outward-facing (posting comments or reviews, marking ready, merging, filing tickets) or hard to undo, unless a skill I triggered covers it. Never force-push default, release or other people's branches.
 
-## Coding instructions
+**Think first.** State assumptions. When the ask is ambiguous, name the ambiguity and ask. Push back when a simpler path exists. If unsure, say so; never guess.
 
-### Before Writing Code
-- Read all relevant files first. Never edit blind.
-- Understand the full requirement before writing anything.
+**Build less.** Build only what was asked, with the shortest fix that works; if the diff is getting big, shrink it. No error handling for cases that cannot happen. Search the codebase for an existing helper before writing one; extract shared code only after 3 uses (2 for large identical blocks).
 
-### Tool Use
+**Touch only what you must.** Keep the diff to the task, in the local style. Remove only what your change orphaned.
 
-- When parsing json, use `jq`.
+**Code style.** Loosely declarative and functional, within the language's idioms: condensed blocks with narrow scope, built from higher-level functions and small extracted functions. Comment only complex or non-obvious logic; names document the rest.
 
-### Coding practices
+**Define done, then verify.** Turn vague asks into checks you can run. Multi-step work: plan up front, then step -> verify -> step -> verify. Never skip or disable a check; there are no "unrelated" errors, so fix every failure before moving on.
 
-- Write clean, readable code with proper error handling
-- If possible, follow a "loosely" declarative and functional style; using programming language idiomatic patterns and conventions, try to write logically condensed blocks by limiting scope by using higher-level functions, separating code blocks to functions or using other language features.
-- Follow existing codebase practices and conventions for consistency, while abiding by other instructions described here.
-- Document ONLY complex and/or obscure logic with comments; self-explanatory code shouldn't need comments. Usually a variable or function name should be enough documentation.
-- Extract repeated code into functions/modules after 3+ uses, or 2+ uses for large identical blocks.
-- No error handling for scenarios that cannot happen.
-- Before writing utility functions, consider searching for existing functionality in the codebase first for code reuse.
-- Skipping or disabling verification steps is NOT ALLOWED. There are no "unrelated" errors, and every error should be fixed.
-- Simplest working solution. No over-engineering.
-- Fix errors before moving on. Never skip failures.
-- Prefer editing over rewriting whole files.
+**Debug from the root cause.** Investigate until you find the actual cause before proposing a fix. Run diagnostic commands yourself instead of asking me to.
 
-### Debugging practices
+**Keep secrets out of tool calls.** Pass them by reference (an env var, a file path or a pipe), so commands, file writes and MCP inputs carry only the reference. Tool inputs end up in transcripts and logs unmasked.
 
-- When debugging a problem, first investigate to find the actual root cause before jumping to conclusions or proposing fixes.
-- Instead of telling the user to run diagnostic commands, try to run them yourself.
+**Keep tool output bounded.** Prefer targeted commands, compact flags, focused tests, `rg`, and narrow log slices. Parse JSON with `jq`. Preserve full errors when diagnosing failures.
+
+**Be brief.** Lead with the answer or action; report results, not the tool calls behind them. No sycophantic openers or closing fluff. Keep warnings that change the advice. When I ask for your opinion, lead with your pick and why; if alternatives are genuinely close, compare them briefly. PR descriptions, review replies and tickets: lead with the why, skip the change inventory. ASCII only: no em dashes, smart quotes or other Unicode.
+
+**Unslop shared text.** Before posting text others will read (PR and issue bodies, review replies, commit messages, docs), run it through the `unslop` skill.
+
+**Show media inline.** Embed screenshots and videos in the chat when possible.
+
+**Commits.** Match the repo's convention: its docs, then recent `git log`. Without one: conventional commits, all lowercase with an optional scope (e.g. `feat: add parser`, `fix(darwin): ...`), body included.
+
+**Development environments.** Use the project's declared tool environment. If it is already loaded, run commands normally; otherwise prefer `direnv exec <project-root> <command>`, `nix develop [flake] -c <command>`, or `mise exec -- <command>` as appropriate. Use the project's documented flake path when it lives outside the checkout.
