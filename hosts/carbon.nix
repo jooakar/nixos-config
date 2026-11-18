@@ -15,7 +15,6 @@
     qbittorrent.enable = true;
     mousehole.enable = true;
     copyparty.enable = true;
-    ddns.enable = true;
     node-exporter.enable = true;
   };
 

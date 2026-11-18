@@ -25,7 +25,6 @@ in
     joona.vhosts = {
       "tv.joona.codes" = {
         port = 8096; # jellyfin
-        public = true;
         loginPaths = [ "/Users/AuthenticateByName" ];
         # Buffering a transcode to disk before forwarding it adds seek latency,
         # and the default body size rejects artwork and subtitle uploads.
@@ -36,13 +35,11 @@ in
       };
       "books.joona.codes" = {
         port = 9292; # audiobookshelf
-        public = true;
         loginPaths = [ "/login" ];
         extraConfig = "client_max_body_size 2G;"; # uploads are whole books
       };
       "seerr.joona.codes" = {
         port = 5055;
-        public = true;
         loginPaths = [
           "/api/v1/auth/jellyfin"
           "/api/v1/auth/local"
@@ -50,7 +47,6 @@ in
       };
       "shelfmark.joona.codes" = {
         port = 8084;
-        public = true;
         loginPaths = [ "/login" ];
       };
       # qui runs on the host and proxies qbittorrent inside the namespace.

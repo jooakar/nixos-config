@@ -48,8 +48,6 @@ in
     joona.services.web.enable = true;
     joona.vhosts."files.joona.codes" = {
       inherit port;
-      # Share links have to open for people outside the tailnet
-      public = true;
       extraConfig = ''
         client_max_body_size 0;
         proxy_request_buffering off;
