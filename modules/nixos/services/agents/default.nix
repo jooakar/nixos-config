@@ -109,6 +109,9 @@ in
       };
     };
 
+    # Where the provider CLIs install themselves, so I can log in to them.
+    environment.localBinInPath = true;
+
     virtualisation.docker.enable = true;
 
     joona.services.web.enable = true;
