@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.joona.services.web;
+  anyPublic = lib.any (v: v.public) (lib.attrValues config.joona.vhosts);
 
   # Creates a virtual host that always has access via the tailnet, and
   # public access is `public` is set.
@@ -147,7 +148,8 @@ in
       bantime = "1h";
     };
 
-    networking.firewall.allowedTCPPorts = [
+    # The tailnet interface is trusted, so a host without public vhosts needs no port
+    networking.firewall.allowedTCPPorts = lib.optionals anyPublic [
       80
       443
     ];
