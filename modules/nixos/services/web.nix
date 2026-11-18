@@ -22,7 +22,8 @@ let
     {
       forceSSL = true;
       enableACME = true;
-      # Null here lets security.acme.defaults.dnsProvider apply
+      # nginx2root (CVE-2026-123007, CVE-2026-123633) until nginx >= 1.30.7
+      http2 = false;
       acmeRoot = null;
       locations = {
         "/" = {
@@ -122,6 +123,7 @@ in
         default = {
           default = true;
           rejectSSL = true;
+          http2 = false;
           locations."/".return = "444";
         };
       };
