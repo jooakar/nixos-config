@@ -62,6 +62,7 @@ in
     i18n.defaultLocale = "en_US.UTF-8";
 
     boot.tmp.cleanOnBoot = true;
+    boot.blacklistedKernelModules = [ "sctp" ];
     zramSwap.enable = true;
     swapDevices = [
       {
