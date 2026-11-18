@@ -61,37 +61,6 @@ resource "cloudflare_dns_record" "carbon_internal" {
     "radarr",
     "bazarr",
     "mousehole",
-  ])
-
-  zone_id = cloudflare_zone.joona_codes.id
-  name    = "${each.value}.joona.codes"
-  type    = "A"
-  content = var.carbon_tailscale_ip
-  ttl     = 300
-  proxied = false
-}
-
-resource "cloudflare_dns_record" "home" {
-  # dyndns fixes these to real addresses, and resets the TTL to auto
-  for_each = {
-    A    = "192.0.2.1"
-    AAAA = "2001:db8::1"
-  }
-
-  zone_id = cloudflare_zone.joona_codes.id
-  name    = "home.joona.codes"
-  type    = each.key
-  content = each.value
-  ttl     = 300
-  proxied = false
-
-  lifecycle {
-    ignore_changes = [content, ttl]
-  }
-}
-
-resource "cloudflare_dns_record" "carbon_public" {
-  for_each = toset([
     "tv",
     "books",
     "seerr",
@@ -101,14 +70,10 @@ resource "cloudflare_dns_record" "carbon_public" {
 
   zone_id = cloudflare_zone.joona_codes.id
   name    = "${each.value}.joona.codes"
-  type    = "CNAME"
-  content = "home.joona.codes"
+  type    = "A"
+  content = var.carbon_tailscale_ip
   ttl     = 300
   proxied = false
-
-  settings = {
-    flatten_cname = false
-  }
 }
 
 # =============================================
